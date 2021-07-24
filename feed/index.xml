@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>M</title>
+	<atom:link href="http://marcius.pro/feed" rel="self" type="application/rss+xml" />
+	<link>http://marcius.pro/</link>
+	<description></description>
+	<lastBuildDate>Fri, 23 Jul 2021 19:42:05 +0000</lastBuildDate>
+	<language>pt-BR</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=5.8</generator>
+	<item>
+		<title>Redimensionando disco virtual no Debian com partição LVM sem perda de dados</title>
+		<link>http://marcius.pro/redimensionando-disco-virtual-no-debian-com-particao-lvm-sem-perda-de-dados.html</link>
+					<comments>http://marcius.pro/redimensionando-disco-virtual-no-debian-com-particao-lvm-sem-perda-de-dados.html#respond</comments>
+		
+		<dc:creator><![CDATA[wppuma]]></dc:creator>
+		<pubDate>Fri, 23 Jul 2021 18:40:26 +0000</pubDate>
+				<category><![CDATA[Linux]]></category>
+		<guid isPermaLink="false">http://marcius.pro/?p=6</guid>
+
+					<description><![CDATA[O cenário é o seguinte: Servidor Debian Buster com Kernel 4.19.194-2 virtualizado em VirtualBox Disco virtual de 50GB precisa ser aumentado para 100GB Partição única em LVM no segundo disco (/dev/sdb) &#160; ..::&#124; Redimensionando Após [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>O cenário é o seguinte:</p>
+
+
+
+<ul><li>Servidor Debian Buster com Kernel 4.19.194-2 virtualizado em VirtualBox</li><li>Disco virtual de 50GB precisa ser aumentado para 100GB</li><li>Partição única em LVM no segundo disco (/dev/sdb)</li></ul>
+
+
+
+<p class="has-medium-font-size">&nbsp;</p>
+
+
+
+<h1 class="has-text-align-left">..::| <strong>Redimensionando</strong></h1>
+
+
+
+<p><p>Após aumentar o disco virtual no VirtualBox com o servidor Debian desligado, inicie-o e verifique se o novo tamanho foi reconhecido:</p>
+<p><img loading="lazy" class="alignnone wp-image-10 size-full" src="http://marcius.pro/wp-content/uploads/2021/07/1-fdisk-sdb.png" alt="" width="502" height="179" srcset="http://marcius.pro/wp-content/uploads/2021/07/1-fdisk-sdb.png 502w, http://marcius.pro/wp-content/uploads/2021/07/1-fdisk-sdb-300x107.png 300w" sizes="(max-width: 502px) 100vw, 502px" /></p>
+<p>
+
+
+
+</p></p>
+]]></content:encoded>
+					
+					<wfw:commentRss>http://marcius.pro/redimensionando-disco-virtual-no-debian-com-particao-lvm-sem-perda-de-dados.html/feed</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Hello world!</title>
+		<link>http://marcius.pro/hello-world.html</link>
+					<comments>http://marcius.pro/hello-world.html#comments</comments>
+		
+		<dc:creator><![CDATA[wppuma]]></dc:creator>
+		<pubDate>Fri, 23 Jul 2021 18:28:13 +0000</pubDate>
+				<category><![CDATA[Uncategorized]]></category>
+		<guid isPermaLink="false">http://marcius.pro/?p=1</guid>
+
+					<description><![CDATA[Welcome to WordPress. This is your first post. Edit or delete it, then start writing!]]></description>
+										<content:encoded><![CDATA[
+<p>Welcome to WordPress. This is your first post. Edit or delete it, then start writing!</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>http://marcius.pro/hello-world.html/feed</wfw:commentRss>
+			<slash:comments>1</slash:comments>
+		
+		
+			</item>
+	</channel>
+</rss>
