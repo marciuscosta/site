@@ -371,10 +371,10 @@ html {
 */
 @font-face {
 	font-family: 'LatoLatin';
-	src: url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Thin.eot');
-	src: url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Thin.eot#iefix') format('embedded-opentype'),
-			url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Thin.woff2') format('woff2'),
-			url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Thin.woff') format('woff');
+	src: url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Thin.eot');
+	src: url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Thin.eot#iefix') format('embedded-opentype'),
+			url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Thin.woff2') format('woff2'),
+			url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Thin.woff') format('woff');
 	font-weight: 100;
 	font-style: normal;
 	font-display: swap;
@@ -382,10 +382,10 @@ html {
 
 @font-face {
 	font-family: 'LatoLatin';
-	src: url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Bold.eot');
-	src: url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Bold.eot#iefix') format('embedded-opentype'),
-			url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Bold.woff2') format('woff2'),
-			url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Bold.woff') format('woff');
+	src: url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Bold.eot');
+	src: url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Bold.eot#iefix') format('embedded-opentype'),
+			url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Bold.woff2') format('woff2'),
+			url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Bold.woff') format('woff');
 	font-weight: bold;
 	font-style: normal;
 	font-display: swap;
@@ -393,10 +393,10 @@ html {
 
 @font-face {
 	font-family: 'LatoLatin';
-	src: url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Medium.eot');
-	src: url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Medium.eot#iefix') format('embedded-opentype'),
-			url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Medium.woff2') format('woff2'),
-			url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Medium.woff') format('woff');
+	src: url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Medium.eot');
+	src: url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Medium.eot#iefix') format('embedded-opentype'),
+			url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Medium.woff2') format('woff2'),
+			url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Medium.woff') format('woff');
 	font-weight: 500;
 	font-style: normal;
 	font-display: swap;
@@ -404,10 +404,10 @@ html {
 
 @font-face {
 	font-family: 'LatoLatin';
-	src: url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Regular.eot');
-	src: url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Regular.eot#iefix') format('embedded-opentype'),
-			url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Regular.woff2') format('woff2'),
-			url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Regular.woff') format('woff');
+	src: url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Regular.eot');
+	src: url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Regular.eot#iefix') format('embedded-opentype'),
+			url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Regular.woff2') format('woff2'),
+			url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Regular.woff') format('woff');
 	font-weight: normal;
 	font-style: normal;
 	font-display: swap;
@@ -415,10 +415,10 @@ html {
 
 @font-face {
 	font-family: 'LatoLatin';
-	src: url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Light.eot');
-	src: url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Light.eot#iefix') format('embedded-opentype'),
-			url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Light.woff2') format('woff2'),
-			url('http://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Light.woff') format('woff');
+	src: url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Light.eot');
+	src: url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Light.eot#iefix') format('embedded-opentype'),
+			url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Light.woff2') format('woff2'),
+			url('https://marcius.pro/wp-content/themes/minnak/fonts/subset-LatoLatin-Light.woff') format('woff');
 	font-weight: 300;
 	font-style: normal;
 	font-display: swap;
@@ -1811,7 +1811,7 @@ h2.entry-title a:hover{
 	height: 48px;
 	padding: 0;
   pointer-events: none;
-  background: url('http://marcius.pro/wp-content/themes/minnak/images/video-icon.svg') no-repeat center center;
+  background: url('https://marcius.pro/wp-content/themes/minnak/images/video-icon.svg') no-repeat center center;
   z-index: 2;
 }
 .home .format-audio .img-frame:after,
@@ -1828,7 +1828,7 @@ h2.entry-title a:hover{
 	height: 48px;
 	padding: 0;
   pointer-events: none;
-  background: url('http://marcius.pro/wp-content/themes/minnak/images/audio-icon.svg') no-repeat center center;
+  background: url('https://marcius.pro/wp-content/themes/minnak/images/audio-icon.svg') no-repeat center center;
   z-index: 2;
 }
 .home article:hover .img-frame:before,

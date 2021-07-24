@@ -8,8 +8,8 @@
 <channel>
 	<title>
 	Comentários sobre M	</title>
-	<atom:link href="http://marcius.pro/comments/feed" rel="self" type="application/rss+xml" />
-	<link>http://marcius.pro/</link>
+	<atom:link href="https://marcius.pro/comments/feed" rel="self" type="application/rss+xml" />
+	<link>https://marcius.pro/</link>
 	<description></description>
 	<lastBuildDate>Fri, 23 Jul 2021 18:28:13 +0000</lastBuildDate>
 	<sy:updatePeriod>
@@ -20,11 +20,11 @@
 	<item>
 		<title>
 		Comentário sobre Hello world! por A WordPress Commenter		</title>
-		<link>http://marcius.pro/hello-world.html#comment-1</link>
+		<link>https://marcius.pro/hello-world.html#comment-1</link>
 
 		<dc:creator><![CDATA[A WordPress Commenter]]></dc:creator>
 		<pubDate>Fri, 23 Jul 2021 18:28:13 +0000</pubDate>
-		<guid isPermaLink="false">http://marcius.pro/?p=1#comment-1</guid>
+		<guid isPermaLink="false">https://marcius.pro/?p=1#comment-1</guid>
 
 					<description><![CDATA[Hi, this is a comment.
 To get started with moderating, editing, and deleting comments, please visit the Comments screen in the dashboard.
