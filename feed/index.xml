@@ -12,7 +12,7 @@
 	<atom:link href="https://marcius.pro/feed" rel="self" type="application/rss+xml" />
 	<link>https://marcius.pro/</link>
 	<description></description>
-	<lastBuildDate>Sat, 24 Jul 2021 03:18:52 +0000</lastBuildDate>
+	<lastBuildDate>Sat, 24 Jul 2021 14:18:41 +0000</lastBuildDate>
 	<language>pt-BR</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -29,7 +29,7 @@
 				<category><![CDATA[Linux]]></category>
 		<guid isPermaLink="false">https://marcius.pro/?p=6</guid>
 
-					<description><![CDATA[O cenário é o seguinte: Servidor Debian Buster com Kernel 4.19.194-2 virtualizado em VirtualBox Disco virtual de 50GB precisa ser aumentado para 100GB Partição única em LVM no segundo disco (/dev/sdb)   ..::&#124; Redimensionando]]></description>
+					<description><![CDATA[Nesse artigo, explico como aumentar uma partição LVM de um disco virtual redimensionado sem ter que refazer a partição, ou seja, sem perda de dados.]]></description>
 										<content:encoded><![CDATA[
 <p>O cenário é o seguinte:</p>
 
