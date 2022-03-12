@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Marcius Costa</title>
+	<atom:link href="/index.php/feed/" rel="self" type="application/rss+xml" />
+	<link>/</link>
+	<description>Profissional em redes de computadores e segurança cibernética</description>
+	<lastBuildDate>Fri, 11 Mar 2022 01:52:43 +0000</lastBuildDate>
+	<language>pt-BR</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=5.9.1</generator>
+	<item>
+		<title>Wazuh criando regra no pfSense para bloquear IP de atacante</title>
+		<link>/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/</link>
+		
+		<dc:creator><![CDATA[marcius]]></dc:creator>
+		<pubDate>Fri, 11 Mar 2022 01:52:43 +0000</pubDate>
+				<category><![CDATA[Segurança]]></category>
+		<guid isPermaLink="false">http://localhost/?p=32</guid>
+
+					<description><![CDATA[Quando o Wazuh identificar um ataque, ele pode criar uma regra em um ou mais pfSense para bloquear o IP desse atacante.]]></description>
+										<content:encoded><![CDATA[
+<p>O cenário é o seguinte:</p>
+
+
+
+<p></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Redimensionando disco virtual no Debian com partição LVM sem perda de dados</title>
+		<link>/index.php/2022/03/11/redimensionando-disco-virtual-no-debian-com-particao-lvm-sem-perda-de-dados/</link>
+		
+		<dc:creator><![CDATA[marcius]]></dc:creator>
+		<pubDate>Fri, 11 Mar 2022 01:21:16 +0000</pubDate>
+				<category><![CDATA[Linux]]></category>
+		<guid isPermaLink="false">http://localhost/?p=12</guid>
+
+					<description><![CDATA[Nesse artigo, explico como aumentar uma partição LVM de um disco virtual redimensionado sem ter que refazer a partição, ou seja, sem perda de dados.]]></description>
+										<content:encoded><![CDATA[
+<p></p>
+
+
+
+<p>O cenário é o seguinte:</p>
+
+
+
+<ul><li>Servidor Debian Buster com Kernel 4.19.194-2 virtualizado em VirtualBox</li><li>Disco virtual de 50GB precisa ser aumentado para 100GB</li><li>Partição única em LVM no segundo disco (/dev/sdb)</li></ul>
+
+
+
+<p></p>
+
+
+
+<h1>..::|&nbsp;<strong>Redimensionando</strong></h1>
+
+
+
+<p>Após aumentar o disco virtual no VirtualBox com o servidor Debian desligado, inicie-o e verifique se o novo tamanho foi reconhecido:</p>
+
+
+
+<figure class="wp-block-image size-full"><img width="502" height="179" src="http://localhost/wp-content/uploads/2022/03/1-fdisk-sdb.png" alt="" class="wp-image-16"/></figure>
+
+
+
+<p>Caso o disco esteja montado, lembre-se de desmonta-lo:</p>
+
+
+
+<pre class="wp-block-code"><code>test@debian:~$ sudo umount /dev/sdb1</code></pre>
+
+
+
+<p>Verifique as informações do volume lógico para pegar o nome dele. Execute “<em>sudo lvscan</em>“:</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="470" height="35" src="http://localhost/wp-content/uploads/2022/03/1-lvscan-edit-1.png" alt="" class="wp-image-17"/></figure>
+
+
+
+<p>Desative o volume lógico:</p>
+
+
+
+<pre class="wp-block-code"><code>test@debian:~$ sudo lvchange -a n /dev/test/lvol0</code></pre>
+
+
+
+<p>Caso já não o tenha, instale o “<em>parted</em>” para redimensionar a partição LVM:</p>
+
+
+
+<pre class="wp-block-code"><code>test@debian:~$ sudo apt-get install parted</code></pre>
+
+
+
+<p>Inicialize o&nbsp;<em>parted</em>&nbsp;no disco a ser redimensionado:</p>
+
+
+
+<pre class="wp-block-code"><code>test@debian:~$ sudo parted /dev/sdb</code></pre>
+
+
+
+<p>No ambiente do <em>parted</em>, verifique a capacidade total do disco com o comando “<em>print</em>” afim de saber para qual tamanho pode-se aumentar a partição /dev/sdb1 com o comando “<em>resizepart</em>“:</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="543" height="497" src="http://localhost/wp-content/uploads/2022/03/1-parted-edit-1.png" alt="" class="wp-image-18"/></figure>
+
+
+
+<p>Insira as informações mostradas pelo comando “<em>print</em>” nas duas perguntas que o comando “<em>resizepart</em>” faz, conforme os destaques em vermelho na imagem acima.</p>
+
+
+
+<p>Agora aumente o physical volume dessa partição com o comando “<em>sudo pvresize /dev/sdb1</em>“.</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="612" height="50" src="http://localhost/wp-content/uploads/2022/03/1-pvresize-sdb1png.png" alt="" class="wp-image-20"/><figcaption><em>Com o comando “sudo pvs” você pode confirmar se o tamanho do physical volume foi aumentado com sucesso.</em></figcaption></figure>
+
+
+
+<p>Redimensione o volume lógico para o máximo disponível:</p>
+
+
+
+<pre class="wp-block-code"><code>test@debian:~$ sudo lvextend -l +100%FREE /dev/test/lvol0</code></pre>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="801" height="65" src="http://localhost/wp-content/uploads/2022/03/1-lvextend-edit.png" alt="" class="wp-image-21"/></figure>
+
+
+
+<p>Ative novamente o volume lógico com o comando:</p>
+
+
+
+<pre class="wp-block-code"><code>test@debian:~$ sudo lvchange -a y /dev/test/lvol0</code></pre>
+
+
+
+<p>Faça uma checagem da partição antes de redimensioná-la (é necessário):</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="637" height="130" src="http://localhost/wp-content/uploads/2022/03/1-e2fsck.png" alt="" class="wp-image-22"/></figure>
+
+
+
+<p>Execute o <em>resize2fs</em> nessa partição para que o novo tamanho seja reconhecido:</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="549" height="72" src="http://localhost/wp-content/uploads/2022/03/1-resize2fs.png" alt="" class="wp-image-23"/></figure>
+
+
+
+<p>Pronto!</p>
+
+
+
+<p>Agora basta montar a partição com o comando&nbsp;<em>mount</em>.</p>
+
+
+
+<pre class="wp-block-code"><code>test@debian:~$ sudo mount /dev/test/lvol0 /destino_da_montagem</code></pre>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="496" height="177" src="http://localhost/wp-content/uploads/2022/03/1-mount.png" alt="" class="wp-image-24"/></figure>
+
+
+
+<p>Caso o redimensionamento seja em um disco onde esteja rodando a raiz do sistema, basta usar um live-cd e seguir esses mesmos passos.</p>
+
+
+
+<blockquote class="wp-block-quote"><p><strong>Fontes:</strong><br><a href="https://www.tecmint.com/parted-command-to-create-resize-rescue-linux-disk-partitions/">https://www.tecmint.com/parted-command-to-create-resize-rescue-linux-disk-partitions/</a><br><a href="https://wiki.debian.org/LVM" target="_blank" rel="noreferrer noopener">https://wiki.debian.org/LVM</a></p></blockquote>
+
+
+
+<p></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+	</channel>
+</rss>
