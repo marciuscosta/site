@@ -12,7 +12,7 @@
 	<atom:link href="/index.php/feed/" rel="self" type="application/rss+xml" />
 	<link>/</link>
 	<description>Profissional em redes de computadores e segurança cibernética</description>
-	<lastBuildDate>Tue, 15 Mar 2022 00:07:26 +0000</lastBuildDate>
+	<lastBuildDate>Tue, 15 Mar 2022 00:16:10 +0000</lastBuildDate>
 	<language>pt-BR</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -44,7 +44,7 @@
 
 
 
-<p>Pra facilitar o trabalho de fazer as configurações no pfSense, habilite o acesso via SSH nesse servidor, indo em <em>System -> Advanced -> </em>marque a opção<em> &#8220;Enable Secure Shell&#8221;</em>:</p>
+<p>Pra facilitar o trabalho de fazer as configurações no pfSense, habilite o acesso via SSH nesse servidor, indo em <em>System -&gt; Advanced -&gt; </em>marque a opção<em> &#8220;Enable Secure Shell&#8221;</em>:</p>
 
 
 
@@ -64,7 +64,7 @@
 
 
 
-<p>Configure o agente do Wazuh, editando o arquivo<em> /var/ossec/etc/ossec.conf </em>e alterando a palavra &#8220;<em>IP</em>&#8221; dentro da tag &#8220;<em>&lt;address>IP&lt;/address></em>&#8221; para o IP do servidor do Wazuh (debian), que nesse artigo é o 10.0.2.201, ficando assim:</p>
+<p>Configure o agente do Wazuh, editando o arquivo<em> /var/ossec/etc/ossec.conf </em>e alterando a palavra &#8220;<em>IP</em>&#8221; dentro da tag &#8220;<em>&lt;address&gt;IP&lt;/address&gt;</em>&#8221; para o IP do servidor do Wazuh (debian), que nesse artigo é o 10.0.2.201, ficando assim:</p>
 
 
 
@@ -76,11 +76,11 @@
 
 
 
-<p>Agora vá na interface web do pfSense e instale a package &#8220;<em>Shellcmd</em>&#8221; para fazer com que o wazuh-agent inicie no boot desse servidor. Vá em <em>System -> Package Manager -> Available Packages</em>, procure por &#8220;<em>Shellcmd</em>&#8221; e o instale.</p>
+<p>Agora vá na interface web do pfSense e instale a package &#8220;<em>Shellcmd</em>&#8221; para fazer com que o wazuh-agent inicie no boot desse servidor. Vá em <em>System -&gt; Package Manager -&gt; Available Packages</em>, procure por &#8220;<em>Shellcmd</em>&#8221; e o instale.</p>
 
 
 
-<p>Depois de instalado, acesse-o em <em>Services -> Shellcmd</em>.</p>
+<p>Depois de instalado, acesse-o em <em>Services -&gt; Shellcmd</em>.</p>
 
 
 
@@ -92,7 +92,7 @@
 
 
 
-<p>Agora crie uma regra para o agente se conectar com o wazuh-manager, indo em <em>Firewall -> Rules -> LAN -> ADD</em> e preencha da seguinte forma:</p>
+<p>Agora crie uma regra para o agente se conectar com o wazuh-manager, indo em <em>Firewall -&gt; Rules -&gt; LAN -&gt; ADD</em> e preencha da seguinte forma:</p>
 
 
 
@@ -132,7 +132,7 @@
 
 
 
-<p>Agora no painel do Wazuh, verifique se o novo agente se conectou ao servidor, indo no menu do <em>Wazuh -> Management -> Status</em>:</p>
+<p>Agora no painel do Wazuh, verifique se o novo agente se conectou ao servidor, indo no menu do <em>Wazuh -&gt; Management -&gt; Status</em>:</p>
 
 
 
@@ -164,18 +164,18 @@ IP=$3
 
 
 # logando as atividades desse script
-echo "`date` $0 $1 $2 $3 $4 $5" >> /var/ossec/logs/active-responses.log
+echo "`date` $0 $1 $2 $3 $4 $5" &gt;&gt; /var/ossec/logs/active-responses.log
 
 
 # Erro se o IP nao for mencionado nos argumentos
 if &#91; "x${IP}" = "x" ]; then
-   echo "$0: Falta o IP no terceiro argumento &lt;acao> &lt;usuario> (IP)"
+   echo "$0: Falta o IP no terceiro argumento &lt;acao&gt; &lt;usuario&gt; (IP)"
    exit 1;
 fi
 
 
 # Coletando os nomes das interfaces do pfSense
-INTF=`/usr/local/bin/xmllint --xpath 'pfsense/interfaces/child::*' /conf/config.xml | grep '^&lt;' | tr -d '&lt;' | tr -d '>'`
+INTF=`/usr/local/bin/xmllint --xpath 'pfsense/interfaces/child::*' /conf/config.xml | grep '^&lt;' | tr -d '&lt;' | tr -d '&gt;'`
 QTDINTF=`echo ${INTF} | wc -w`
 # a ACAO sera feita para cada interface coletada acima
 # caso deseje executar a ACAO para interfaces especificas, especifique elas na varialvel INTF colocando espacos entre cada uma, por exemplo:
@@ -216,23 +216,23 @@ exit 1;</code></pre>
 
 
 
-<p>Agora vá até o servidor Debian onde está o wazuh-manager, e edite o arquivo <em>/var/ossec/etc/ossec.conf</em> acrescentando, depois do último &#8220;<em>&lt;/command></em>&#8220;, o seguinte conteúdo:</p>
+<p>Agora vá até o servidor Debian onde está o wazuh-manager, e edite o arquivo <em>/var/ossec/etc/ossec.conf</em> acrescentando, depois do último &#8220;<em>&lt;/command&gt;</em>&#8220;, o seguinte conteúdo:</p>
 
 
 
-<pre class="wp-block-code"><code>  &lt;command>
-    &lt;name>easyrule-pfsense&lt;/name>
-    &lt;executable>easyrule-pf.sh&lt;/executable>
-    &lt;timeout_allowed>yes&lt;/timeout_allowed>
-  &lt;/command>
+<pre class="wp-block-code"><code>  &lt;command&gt;
+    &lt;name&gt;easyrule-pfsense&lt;/name&gt;
+    &lt;executable&gt;easyrule-pf.sh&lt;/executable&gt;
+    &lt;timeout_allowed&gt;yes&lt;/timeout_allowed&gt;
+  &lt;/command&gt;
 
-  &lt;active-response>
-    &lt;command>easyrule-pfsense&lt;/command>
-    &lt;location>defined-agent&lt;/location>
-    &lt;agent_id>001&lt;/agent_id>
-    &lt;rules_id>5758&lt;/rules_id>
-    &lt;disabled>no&lt;/disabled>
-  &lt;/active-response></code></pre>
+  &lt;active-response&gt;
+    &lt;command&gt;easyrule-pfsense&lt;/command&gt;
+    &lt;location&gt;defined-agent&lt;/location&gt;
+    &lt;agent_id&gt;001&lt;/agent_id&gt;
+    &lt;rules_id&gt;5758&lt;/rules_id&gt;
+    &lt;disabled&gt;no&lt;/disabled&gt;
+  &lt;/active-response&gt;</code></pre>
 
 
 
@@ -240,11 +240,11 @@ exit 1;</code></pre>
 
 
 
-<p>Nesse exemplo acima eu especifiquei o agente recém instalado no pfSense, cujo o código é 001. Caso queira que mais de um agente execute a ação de criar regras de bloqueio, adicione os códigos desses agentes os separando por uma vírgula (por exemplo: <code>&lt;agent_id>001,009,021&lt;/agent_id></code>). Nesse caso, lembre-se de colocar o script &#8220;<em>easyrule-pf.sh</em>&#8221; nesses outros servidores também, como descrito acima, assim como configurar suas permissões.</p>
+<p>Nesse exemplo acima eu especifiquei o agente recém instalado no pfSense, cujo o código é 001. Caso queira que mais de um agente execute a ação de criar regras de bloqueio, adicione os códigos desses agentes os separando por uma vírgula (por exemplo: <code>&lt;agent_id&gt;001,009,021&lt;/agent_id&gt;</code>). Nesse caso, lembre-se de colocar o script &#8220;<em>easyrule-pf.sh</em>&#8221; nesses outros servidores também, como descrito acima, assim como configurar suas permissões.</p>
 
 
 
-<p>Aqui nesse exemplo eu também especifiquei uma regra que, quando acionada em algum ataque, irá executar o script &#8220;<em>easyrule-pf.sh</em>&#8221; no(s) agente(s) configurado(s) em &#8220;<em>&lt;agent_id></em>&#8220;. É possível colocar, ao invés de apenas uma regra, várias delas também as separando por vírgula, ou também um grupo de regras, mas nesse caso não se usa as tags &#8220;<em>&lt;rules_id>&lt;/rules_id></em>&#8220;, e sim &#8220;<em>&lt;rules_group>&lt;/rules_group></em>&#8220;, inserindo os nomes dos grupos que pretende usar (por exemplo: <code>&lt;rules_group>authentication_failed|authentication_failures&lt;/rules_group></code>). Mais informações sobre as possibilidades de configuração dos tipos de gatilhos você encontra <a href="https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/active-response.html" target="_blank" rel="noreferrer noopener">aqui</a>.</p>
+<p>Aqui nesse exemplo eu também especifiquei uma regra que, quando acionada em algum ataque, irá executar o script &#8220;<em>easyrule-pf.sh</em>&#8221; no(s) agente(s) configurado(s) em &#8220;<em>&lt;agent_id&gt;</em>&#8220;. É possível colocar, ao invés de apenas uma regra, várias delas também as separando por vírgula, ou também um grupo de regras, mas nesse caso não se usa as tags &#8220;<em>&lt;rules_id&gt;&lt;/rules_id&gt;</em>&#8220;, e sim &#8220;<em>&lt;rules_group&gt;&lt;/rules_group&gt;</em>&#8220;, inserindo os nomes dos grupos que pretende usar (por exemplo: <code>&lt;rules_group&gt;authentication_failed|authentication_failures&lt;/rules_group&gt;</code>). Mais informações sobre as possibilidades de configuração dos tipos de gatilhos você encontra <a href="https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/active-response.html" target="_blank" rel="noreferrer noopener">aqui</a>.</p>
 
 
 
@@ -260,7 +260,7 @@ exit 1;</code></pre>
 
 
 
-<p>No exemplo acima, especifiquei uma regra cuja sua configuração detecta várias tentativas de login via SSH em um servidor. Para testar se o script que adiciona IP à regras de bloqueio no pfSense está funcionando, desabilitei a proteção SSH do pfSense indo em <em>System -> Advanced</em>, na primeira aba chamada &#8220;<em>Admin Access</em>&#8220;, e logo abaixo em &#8220;<em>Login Protection</em>&#8221; adicionei o IP da minha máquina no campo &#8220;<em>Pass list</em>&#8220;, para que o pfSense permita que eu faça várias tentativas de login pelo SSH ao invés de me bloquear automaticamente por ele mesmo.</p>
+<p>No exemplo acima, especifiquei uma regra cuja sua configuração detecta várias tentativas de login via SSH em um servidor. Para testar se o script que adiciona IP à regras de bloqueio no pfSense está funcionando, desabilitei a proteção SSH do pfSense indo em <em>System -&gt; Advanced</em>, na primeira aba chamada &#8220;<em>Admin Access</em>&#8220;, e logo abaixo em &#8220;<em>Login Protection</em>&#8221; adicionei o IP da minha máquina no campo &#8220;<em>Pass list</em>&#8220;, para que o pfSense permita que eu faça várias tentativas de login pelo SSH ao invés de me bloquear automaticamente por ele mesmo.</p>
 
 
 
@@ -308,7 +308,7 @@ exit 1;</code></pre>
 
 
 
-<p>Depois desative o sistema &#8220;<em>Anti-Lockout</em>&#8221; (em <em>System -> Advanced -></em> marcar a opção &#8220;<em>Disable webConfigurator anti-lockout rule</em>&#8220;). Nesse momento você notará que não haverá mais aquela regra padrão no topo da aba LAN, ficando parecida com a imagem acima.</p>
+<p>Depois desative o sistema &#8220;<em>Anti-Lockout</em>&#8221; (em <em>System -&gt; Advanced -&gt;</em> marcar a opção &#8220;<em>Disable webConfigurator anti-lockout rule</em>&#8220;). Nesse momento você notará que não haverá mais aquela regra padrão no topo da aba LAN, ficando parecida com a imagem acima.</p>
 
 
 
@@ -324,7 +324,7 @@ exit 1;</code></pre>
 
 
 
-<p>Por isso, é importante colocar um tempo de bloqueio para cada IP, e após esses dias tirá-lo dos aliases das regras criadas pelo &#8220;<em>easyrule-pf.sh</em>&#8220;. Isso é configurável através da opção &#8220;<em>&lt;timeout></em>&#8221; dentro do &#8220;<em>&lt;active-response>&lt;/active-response></em>&#8221; no &#8220;<em>/var/ossec/etc/ossec.conf</em>&#8221; dentro do servidor do wazuh-manager, e colocar um valor em segundos (por exemplo, para 8 dias de bloqueio: <code>&lt;timeout>691200&lt;/timeout></code>).</p>
+<p>Por isso, é importante colocar um tempo de bloqueio para cada IP, e após esses dias tirá-lo dos aliases das regras criadas pelo &#8220;<em>easyrule-pf.sh</em>&#8220;. Isso é configurável através da opção &#8220;<em>&lt;timeout&gt;</em>&#8221; dentro do &#8220;<em>&lt;active-response&gt;&lt;/active-response&gt;</em>&#8221; no &#8220;<em>/var/ossec/etc/ossec.conf</em>&#8221; dentro do servidor do wazuh-manager, e colocar um valor em segundos (por exemplo, para 8 dias de bloqueio: <code>&lt;timeout&gt;691200&lt;/timeout&gt;</code>).</p>
 
 
 
