@@ -8,7 +8,7 @@
 	>
 
 <channel>
-	<title>Segurança &#8211; Marcius Costa</title>
+	<title>Arquivos Segurança - Marcius Costa</title>
 	<atom:link href="/index.php/category/seguranca/feed/" rel="self" type="application/rss+xml" />
 	<link>/</link>
 	<description>Profissional em redes de computadores e segurança cibernética</description>
@@ -28,7 +28,9 @@
 				<category><![CDATA[Segurança]]></category>
 		<guid isPermaLink="false">http://localhost/?p=32</guid>
 
-					<description><![CDATA[Quando o Wazuh identificar um ataque, ele pode criar uma regra em um ou mais pfSense para bloquear o IP desse atacante.]]></description>
+					<description><![CDATA[<p>Quando o Wazuh identificar um ataque, ele pode criar uma regra em um ou mais pfSense para bloquear o IP desse atacante.</p>
+<p>O post <a rel="nofollow" href="/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/">Wazuh criando regra no pfSense para bloquear IP de atacante</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
+]]></description>
 										<content:encoded><![CDATA[
 <p>O cenário é o seguinte:</p>
 
@@ -331,6 +333,7 @@ exit 1;</code></pre>
 
 
 <blockquote class="wp-block-quote is-style-default"><p>Fontes:<br><a href="https://techviewleo.com/how-to-install-wazuh-server-on-debian/" target="_blank" rel="noreferrer noopener">https://techviewleo.com/how-to-install-wazuh-server-on-debian/</a><br><a href="https://documentation.wazuh.com/" target="_blank" rel="noreferrer noopener">https://documentation.wazuh.com/</a><br><a href="https://groups.google.com/g/wazuh/c/pc4IAOIjW-E?pli=1" target="_blank" rel="noreferrer noopener">https://groups.google.com/g/wazuh/c/pc4IAOIjW-E?pli=1</a><br><a href="https://freebsd.pkgs.org/12/freebsd-amd64/wazuh-agent-4.1.5.pkg.html" target="_blank" rel="noreferrer noopener">https://freebsd.pkgs.org/12/freebsd-amd64/wazuh-agent-4.1.5.pkg.html</a><br><a href="https://docs.netgate.com/pfsense/en/latest/development/boot-commands.html" target="_blank" rel="noreferrer noopener">https://docs.netgate.com/pfsense/en/latest/development/boot-commands.html</a><br><a href="https://documentation.wazuh.com/current/user-manual/capabilities/active-response/how-it-works.html#active-response-configuration" target="_blank" rel="noreferrer noopener">https://documentation.wazuh.com/current/user-manual/capabilities/active-response/how-it-works.html#active-response-configuration</a><br><a href="https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/active-response.html#reference-ossec-active-response" target="_blank" rel="noreferrer noopener">https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/active-response.html#reference-ossec-active-response</a></p></blockquote>
+<p>O post <a rel="nofollow" href="/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/">Wazuh criando regra no pfSense para bloquear IP de atacante</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
 ]]></content:encoded>
 					
 		

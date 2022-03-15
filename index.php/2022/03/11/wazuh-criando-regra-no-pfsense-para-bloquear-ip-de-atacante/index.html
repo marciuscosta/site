@@ -5,8 +5,32 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="profile" href="https://gmpg.org/xfn/11">
 
-	<title>Wazuh criando regra no pfSense para bloquear IP de atacante &#8211; Marcius Costa</title>
-<meta name="robots" content="max-image-preview:large">
+	<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+
+	<!-- This site is optimized with the Yoast SEO plugin v18.3 - https://yoast.com/wordpress/plugins/seo/ -->
+	<title>Wazuh criando regra no pfSense para bloquear IP de atacante - Marcius Costa</title>
+	<link rel="canonical" href="/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/">
+	<meta property="og:locale" content="pt_BR">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Wazuh criando regra no pfSense para bloquear IP de atacante - Marcius Costa">
+	<meta property="og:description" content="Quando o Wazuh identificar um ataque, ele pode criar uma regra em um ou mais pfSense para bloquear o IP desse atacante.">
+	<meta property="og:url" content="/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/">
+	<meta property="og:site_name" content="Marcius Costa">
+	<meta property="article:published_time" content="2022-03-11T01:52:43+00:00">
+	<meta property="article:modified_time" content="2022-03-14T21:34:24+00:00">
+	<meta property="og:image" content="/wp-content/uploads/2022/03/titulo.png">
+	<meta property="og:image:width" content="1200">
+	<meta property="og:image:height" content="675">
+	<meta property="og:image:type" content="image/png">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:label1" content="Escrito por">
+	<meta name="twitter:data1" content="marcius">
+	<meta name="twitter:label2" content="Est. tempo de leitura">
+	<meta name="twitter:data2" content="8 minutos">
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"/#website","url":"/","name":"Marcius Costa","description":"Profissional em redes de computadores e segurança cibernética","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"/?s={search_term_string}"},"query-input":"required name=search_term_string"}],"inLanguage":"pt-BR"},{"@type":"ImageObject","@id":"/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/#primaryimage","inLanguage":"pt-BR","url":"/wp-content/uploads/2022/03/titulo.png","contentUrl":"/wp-content/uploads/2022/03/titulo.png","width":1200,"height":675},{"@type":"WebPage","@id":"/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/#webpage","url":"/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/","name":"Wazuh criando regra no pfSense para bloquear IP de atacante - Marcius Costa","isPartOf":{"@id":"/#website"},"primaryImageOfPage":{"@id":"/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/#primaryimage"},"datePublished":"2022-03-11T01:52:43+00:00","dateModified":"2022-03-14T21:34:24+00:00","author":{"@id":"/#/schema/person/06a29c6c112f692c476fb671fa556a4a"},"breadcrumb":{"@id":"/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/#breadcrumb"},"inLanguage":"pt-BR","potentialAction":[{"@type":"ReadAction","target":["/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/"]}]},{"@type":"BreadcrumbList","@id":"/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Início","item":"/"},{"@type":"ListItem","position":2,"name":"Wazuh criando regra no pfSense para bloquear IP de atacante"}]},{"@type":"Person","@id":"/#/schema/person/06a29c6c112f692c476fb671fa556a4a","name":"marcius","image":{"@type":"ImageObject","@id":"/#personlogo","inLanguage":"pt-BR","url":"http://0.gravatar.com/avatar/c913a61ab6c4834155e669573c13b12c?s=96&d=mm&r=g","contentUrl":"http://0.gravatar.com/avatar/c913a61ab6c4834155e669573c13b12c?s=96&d=mm&r=g","caption":"marcius"},"sameAs":["http://localhost"],"url":"/index.php/author/marcius/"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
 <link rel="dns-prefetch" href="//s.w.org">
 <link rel="alternate" type="application/rss+xml" title="Feed para Marcius Costa &raquo;" href="/index.php/feed/">
 <link rel="alternate" type="application/rss+xml" title="Feed de comentários para Marcius Costa &raquo;" href="/index.php/comments/feed/">
@@ -41,7 +65,6 @@ img.emoji {
 <link rel="EditURI" type="application/rsd+xml" title="RSD" href="/xmlrpc.php?rsd">
 <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="/wp-includes/wlwmanifest.xml"> 
 <meta name="generator" content="WordPress 5.9.1">
-<link rel="canonical" href="/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/">
 <link rel="shortlink" href="/?p=32">
 <link rel="alternate" type="application/json+oembed" href="/index.php/wp-json/oembed/1.0/embed?url=http%3A%2F%2F%2Findex.php%2F2022%2F03%2F11%2Fwazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante%2F">
 <link rel="alternate" type="text/xml+oembed" href="/index.php/wp-json/oembed/1.0/embed?url=http%3A%2F%2F%2Findex.php%2F2022%2F03%2F11%2Fwazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante%2F&#038;format=xml">
@@ -110,15 +133,15 @@ img.emoji {
 												
 <aside id="secondary" class="widget-area">
 	<section id="block-3" class="widget widget_block">
-<div class="wp-container-622fb797b0127 wp-block-group"><div class="wp-block-group__inner-container">
+<div class="wp-container-622fd91c5217d wp-block-group"><div class="wp-block-group__inner-container">
 <div class="wp-block-columns">
 <div class="wp-block-column"></div>
 </div>
 </div></div>
 </section><section id="block-4" class="widget widget_block">
-<div class="wp-container-622fb797b05e5 wp-block-group"><div class="wp-block-group__inner-container"></div></div>
+<div class="wp-container-622fd91c5269b wp-block-group"><div class="wp-block-group__inner-container"></div></div>
 </section><section id="block-5" class="widget widget_block">
-<div class="wp-container-622fb797b09db wp-block-group"><div class="wp-block-group__inner-container"></div></div>
+<div class="wp-container-622fd91c52a3b wp-block-group"><div class="wp-block-group__inner-container"></div></div>
 </section></aside>
 												</div>
 										</div>
@@ -498,9 +521,9 @@ exit 1;</code></pre>
 	</main>
 </div>
 
-<style>.wp-container-622fb797b0127 .alignleft { float: left; margin-right: 2em; }.wp-container-622fb797b0127 .alignright { float: right; margin-left: 2em; }</style>
-<style>.wp-container-622fb797b05e5 .alignleft { float: left; margin-right: 2em; }.wp-container-622fb797b05e5 .alignright { float: right; margin-left: 2em; }</style>
-<style>.wp-container-622fb797b09db .alignleft { float: left; margin-right: 2em; }.wp-container-622fb797b09db .alignright { float: right; margin-left: 2em; }</style>
+<style>.wp-container-622fd91c5217d .alignleft { float: left; margin-right: 2em; }.wp-container-622fd91c5217d .alignright { float: right; margin-left: 2em; }</style>
+<style>.wp-container-622fd91c5269b .alignleft { float: left; margin-right: 2em; }.wp-container-622fd91c5269b .alignright { float: right; margin-left: 2em; }</style>
+<style>.wp-container-622fd91c52a3b .alignleft { float: left; margin-right: 2em; }.wp-container-622fd91c52a3b .alignright { float: right; margin-left: 2em; }</style>
 <script src="/wp-content/themes/minnak/js/navigation.js?ver=2.1.9" id="minnak-navigation-js"></script>
 <script src="/wp-content/themes/minnak/js/main.js?ver=2.1.9" id="minnak-main-js-js"></script>
 <script src="/wp-content/themes/minnak/plugins/loading/loading.js?ver=2.1.9" id="minnak-loading-js"></script>

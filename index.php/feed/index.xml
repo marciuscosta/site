@@ -12,7 +12,7 @@
 	<atom:link href="/index.php/feed/" rel="self" type="application/rss+xml" />
 	<link>/</link>
 	<description>Profissional em redes de computadores e segurança cibernética</description>
-	<lastBuildDate>Mon, 14 Mar 2022 21:34:24 +0000</lastBuildDate>
+	<lastBuildDate>Tue, 15 Mar 2022 00:07:26 +0000</lastBuildDate>
 	<language>pt-BR</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,7 +28,9 @@
 				<category><![CDATA[Segurança]]></category>
 		<guid isPermaLink="false">http://localhost/?p=32</guid>
 
-					<description><![CDATA[Quando o Wazuh identificar um ataque, ele pode criar uma regra em um ou mais pfSense para bloquear o IP desse atacante.]]></description>
+					<description><![CDATA[<p>Quando o Wazuh identificar um ataque, ele pode criar uma regra em um ou mais pfSense para bloquear o IP desse atacante.</p>
+<p>O post <a rel="nofollow" href="/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/">Wazuh criando regra no pfSense para bloquear IP de atacante</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
+]]></description>
 										<content:encoded><![CDATA[
 <p>O cenário é o seguinte:</p>
 
@@ -331,6 +333,7 @@ exit 1;</code></pre>
 
 
 <blockquote class="wp-block-quote is-style-default"><p>Fontes:<br><a href="https://techviewleo.com/how-to-install-wazuh-server-on-debian/" target="_blank" rel="noreferrer noopener">https://techviewleo.com/how-to-install-wazuh-server-on-debian/</a><br><a href="https://documentation.wazuh.com/" target="_blank" rel="noreferrer noopener">https://documentation.wazuh.com/</a><br><a href="https://groups.google.com/g/wazuh/c/pc4IAOIjW-E?pli=1" target="_blank" rel="noreferrer noopener">https://groups.google.com/g/wazuh/c/pc4IAOIjW-E?pli=1</a><br><a href="https://freebsd.pkgs.org/12/freebsd-amd64/wazuh-agent-4.1.5.pkg.html" target="_blank" rel="noreferrer noopener">https://freebsd.pkgs.org/12/freebsd-amd64/wazuh-agent-4.1.5.pkg.html</a><br><a href="https://docs.netgate.com/pfsense/en/latest/development/boot-commands.html" target="_blank" rel="noreferrer noopener">https://docs.netgate.com/pfsense/en/latest/development/boot-commands.html</a><br><a href="https://documentation.wazuh.com/current/user-manual/capabilities/active-response/how-it-works.html#active-response-configuration" target="_blank" rel="noreferrer noopener">https://documentation.wazuh.com/current/user-manual/capabilities/active-response/how-it-works.html#active-response-configuration</a><br><a href="https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/active-response.html#reference-ossec-active-response" target="_blank" rel="noreferrer noopener">https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/active-response.html#reference-ossec-active-response</a></p></blockquote>
+<p>O post <a rel="nofollow" href="/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/">Wazuh criando regra no pfSense para bloquear IP de atacante</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
 ]]></content:encoded>
 					
 		
@@ -345,7 +348,9 @@ exit 1;</code></pre>
 				<category><![CDATA[Linux]]></category>
 		<guid isPermaLink="false">http://localhost/?p=12</guid>
 
-					<description><![CDATA[Nesse artigo, explico como aumentar uma partição LVM de um disco virtual redimensionado sem ter que refazer a partição, ou seja, sem perda de dados.]]></description>
+					<description><![CDATA[<p>Nesse artigo, explico como aumentar uma partição LVM de um disco virtual redimensionado sem ter que refazer a partição, ou seja, sem perda de dados.</p>
+<p>O post <a rel="nofollow" href="/index.php/2022/03/11/redimensionando-disco-virtual-no-debian-com-particao-lvm-sem-perda-de-dados/">Redimensionando disco virtual no Debian com partição LVM sem perda de dados</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
+]]></description>
 										<content:encoded><![CDATA[
 <p></p>
 
@@ -415,7 +420,7 @@ exit 1;</code></pre>
 
 
 
-<p>No ambiente do <em>parted</em>, verifique a capacidade total do disco com o comando “<em>print</em>” afim de saber para qual tamanho pode-se aumentar a partição /dev/sdb1 com o comando “<em>resizepart</em>“:</p>
+<p>No ambiente do&nbsp;<em>parted</em>, verifique a capacidade total do disco com o comando “<em>print</em>” afim de saber para qual tamanho pode-se aumentar a partição /dev/sdb1 com o comando “<em>resizepart</em>“:</p>
 
 
 
@@ -463,7 +468,7 @@ exit 1;</code></pre>
 
 
 
-<p>Execute o <em>resize2fs</em> nessa partição para que o novo tamanho seja reconhecido:</p>
+<p>Execute o&nbsp;<em>resize2fs</em>&nbsp;nessa partição para que o novo tamanho seja reconhecido:</p>
 
 
 
@@ -496,6 +501,7 @@ exit 1;</code></pre>
 
 
 <p></p>
+<p>O post <a rel="nofollow" href="/index.php/2022/03/11/redimensionando-disco-virtual-no-debian-com-particao-lvm-sem-perda-de-dados/">Redimensionando disco virtual no Debian com partição LVM sem perda de dados</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
 ]]></content:encoded>
 					
 		

@@ -8,11 +8,11 @@
 	>
 
 <channel>
-	<title>Linux &#8211; Marcius Costa</title>
+	<title>Arquivos Linux - Marcius Costa</title>
 	<atom:link href="/index.php/category/linux/feed/" rel="self" type="application/rss+xml" />
 	<link>/</link>
 	<description>Profissional em redes de computadores e segurança cibernética</description>
-	<lastBuildDate>Fri, 11 Mar 2022 01:30:08 +0000</lastBuildDate>
+	<lastBuildDate>Tue, 15 Mar 2022 00:07:26 +0000</lastBuildDate>
 	<language>pt-BR</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,7 +28,9 @@
 				<category><![CDATA[Linux]]></category>
 		<guid isPermaLink="false">http://localhost/?p=12</guid>
 
-					<description><![CDATA[Nesse artigo, explico como aumentar uma partição LVM de um disco virtual redimensionado sem ter que refazer a partição, ou seja, sem perda de dados.]]></description>
+					<description><![CDATA[<p>Nesse artigo, explico como aumentar uma partição LVM de um disco virtual redimensionado sem ter que refazer a partição, ou seja, sem perda de dados.</p>
+<p>O post <a rel="nofollow" href="/index.php/2022/03/11/redimensionando-disco-virtual-no-debian-com-particao-lvm-sem-perda-de-dados/">Redimensionando disco virtual no Debian com partição LVM sem perda de dados</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
+]]></description>
 										<content:encoded><![CDATA[
 <p></p>
 
@@ -98,7 +100,7 @@
 
 
 
-<p>No ambiente do <em>parted</em>, verifique a capacidade total do disco com o comando “<em>print</em>” afim de saber para qual tamanho pode-se aumentar a partição /dev/sdb1 com o comando “<em>resizepart</em>“:</p>
+<p>No ambiente do&nbsp;<em>parted</em>, verifique a capacidade total do disco com o comando “<em>print</em>” afim de saber para qual tamanho pode-se aumentar a partição /dev/sdb1 com o comando “<em>resizepart</em>“:</p>
 
 
 
@@ -146,7 +148,7 @@
 
 
 
-<p>Execute o <em>resize2fs</em> nessa partição para que o novo tamanho seja reconhecido:</p>
+<p>Execute o&nbsp;<em>resize2fs</em>&nbsp;nessa partição para que o novo tamanho seja reconhecido:</p>
 
 
 
@@ -179,6 +181,7 @@
 
 
 <p></p>
+<p>O post <a rel="nofollow" href="/index.php/2022/03/11/redimensionando-disco-virtual-no-debian-com-particao-lvm-sem-perda-de-dados/">Redimensionando disco virtual no Debian com partição LVM sem perda de dados</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
 ]]></content:encoded>
 					
 		
