@@ -1,0 +1,833 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Arquivos Segurança - Marcius Costa</title>
+	<atom:link href="/index.php/category/seguranca/feed/" rel="self" type="application/rss+xml" />
+	<link>/</link>
+	<description>Profissional em redes de computadores e segurança cibernética</description>
+	<lastBuildDate>Fri, 01 Apr 2022 21:06:47 +0000</lastBuildDate>
+	<language>pt-BR</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=5.9.1</generator>
+	<item>
+		<title>Port Knocking no pfSense usando Wazuh</title>
+		<link>/index.php/2022/03/31/port-knocking-no-pfsense-usando-wazuh/</link>
+					<comments>/index.php/2022/03/31/port-knocking-no-pfsense-usando-wazuh/#respond</comments>
+		
+		<dc:creator><![CDATA[marcius]]></dc:creator>
+		<pubDate>Thu, 31 Mar 2022 18:31:33 +0000</pubDate>
+				<category><![CDATA[Segurança]]></category>
+		<guid isPermaLink="false">/?p=107</guid>
+
+					<description><![CDATA[<p>Esconda portas importantes no seu pfSense e abra elas especificamente para o seu IP externo através de toques de conexões em 3 ou mais portas bloqueadas, com uma sequência secreta.</p>
+<p>O post <a rel="nofollow" href="/index.php/2022/03/31/port-knocking-no-pfsense-usando-wazuh/">Port Knocking no pfSense usando Wazuh</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[
+<p>O cenário é o seguinte:</p>
+
+
+
+<ul><li>Debian Bullseye versão 5.10.84-1 com wazuh-manager 4.2.6-1 e elasticsearch, kibana e filebeat nas versões 7.14.2</li><li>pfSense 2.6.0-RELEASE</li><li>Ambos os servidores acima foram virtualizados em VirtualBox 6.1.32 r149290 em Arch Linux 5.16.13-arch1-1</li><li>O artigo parte do princípio que o wazuh-manager, wazuh-agent e o pfSense já estejam instalados, configurados e funcionais, como descrito acima.</li><li>IP do servidor com wazuh-manager: 10.0.2.201/24</li><li>IP do servidor com pfSense: 10.0.2.200/24 (LAN) e 10.0.0.200/24 (WAN)</li></ul>
+
+
+
+<h2>..::| Objetivo</h2>
+
+
+
+<p>A técnica de Port Knocking consiste em estabelecer 3 ou mais portas aleatórias que, se &#8220;tocadas&#8221; (ou seja, se &#8220;brevemente conectadas&#8221;) por um IP na sequência correta, fará com que um script seja executado para liberar outra porta para o IP de origem desses toques. Mais informações sobre essa técnica você encontra <a href="https://en.wikipedia.org/wiki/Port_knocking" target="_blank" rel="noreferrer noopener">aqui</a>.</p>
+
+
+
+<p>Nesse artigo a intenção é liberar o acesso ao pfSense, na porta &#8220;wan&#8221; dele, somente para um específico IP de origem quando esse conseguir tocar em 3 portas configuradas como &#8220;combinação de portas para liberação de conexão&#8221;, e na sequência correta. Aqui descreverei a liberação das portas 80/TCP e 22/TCP, porém só uma delas poderá ser liberada para um IP de origem enquanto não expirar essa liberação.</p>
+
+
+
+<p>Essa liberação externa para acessar o pfSense possibilitará o administrador de redes a configurar remotamente o gateway de uma LAN, pois possibilitará acesso tanto via SSH quanto ao webadmin do pfSense. Como essas portas serão liberadas somente se o Port Knocking for acertado, evita-se diversos tipos de ataques a esse gateway, como o de força bruta, por exemplo. No caso desse artigo utilizei a porta 80, porém é sempre recomendado ativar o HTTPS do pfSense e desativar o acesso HTTP, para maior segurança ainda mais quando se está acessando-o da internet.</p>
+
+
+
+<h2>..::| Enviando registros ao wazuh-manager</h2>
+
+
+
+<p>Caso não tenha o acesso SSH ao servidor do pfSense habilitado, faça-o indo no menu <em>System -> Advanced -></em> marque a opção &#8220;<em>Enable Secure Shell</em>&#8221; e depois salve.</p>
+
+
+
+<p>Configure o agente do Wazuh no pfSense para ler e encaminhar o conteúdo do log <em>/var/log/filter.log</em>. Abra o arquivo <em>/var/ossec/etc/ossec.conf</em> no pfSense e, depois do último <em>&lt;/localfile></em> , adicione:</p>
+
+
+
+<pre class="wp-block-code"><code>&lt;localfile>
+ &lt;log_format>syslog&lt;/log_format>
+ &lt;location>/var/log/filter.log&lt;/location>
+&lt;/localfile></code></pre>
+
+
+
+<p>Reinicie o agent:</p>
+
+
+
+<pre class="wp-block-code"><code>/usr/local/etc/rc.d/wazuh-agent restart</code></pre>
+
+
+
+<h2>..::| Script portknocking.sh</h2>
+
+
+
+<p>Esse script será o responsável por verificar a sequência de portas tocadas, criar a regra de firewall para liberar acesso a porta solicitada caso a sequência de toques esteja correta, e também para excluir essa regra após um período pré-determinado a ser configurado no active-response do wazuh-manager.</p>
+
+
+
+<p>Crie o arquivo <em>/var/ossec/active-response/bin/portknocking.sh</em> com o seguinte conteúdo:</p>
+
+
+
+<pre class="wp-block-code"><code>#!/bin/sh
+# Script para liberar porta atraves da tecnica port knocking
+# Expect: srcip
+# Author: Marcius da C. Silveira
+# Last modified: Apr 1, 2022
+# Publicado: https://marcius.pro/
+
+
+ACAO=$1
+USUARIO=$2
+IP=$3
+REGRA=$5                                # Regra no wazuh referente a esse port knocking especifico
+INTWAN=`echo $9 | cut -d ',' -f1`       # Nome da interface de rede da porta wan que sera acessada externamente para liberacao da ${PORT} configurada abaixo
+TABWAN=`echo $9 | cut -d ',' -f2`       # Nome que o pfsense da a interface de rede da porta wan configurada em ${INTWAN}
+PROTO=`echo $9 | cut -d ',' -f3`        # Protocolo que sera liberado apos a sequencia de portas serem tocadas
+PORT=`echo $9 | cut -d ',' -f4`         # Porta que sera liberada no port knocking
+TIMEOUT=`echo $9 | cut -d ',' -f5`      # Tempo de espera entre o toque na primeira porta do port knocking e a ultima da sequencia, se passar desse valor em segundos a operacao nao se realizara
+EXTRAIGNOREPORTS=`echo $9 | cut -d ',' -f6 `            # Portas a serem ignoradas tambem
+ARLOG=/var/ossec/logs/active-responses.log
+
+# logando as atividades desse script
+echo "`date` $0 $1 $2 $3 $4 $5 $9" >> ${ARLOG}
+
+# Adicionar ou remover IP
+# Adicionando
+if &#91; ${ACAO} == "add" ]; then
+
+        # Separando as entradas no log de filtragem do pfSense referente ao IP que esta acessando esse sistema
+        LOGFILTERORIGINAL=/var/log/filter.log
+        LOGFILTER=/tmp/conexoes_${IP}_${PORT}_${PROTO}
+        cat ${LOGFILTERORIGINAL} | grep ","${IP}"," > ${LOGFILTER}
+
+        # Se foram encontradas conexoes desse IP no log de filtragem, executa esse script
+        if &#91; `wc -l ${LOGFILTER} | awk '{print $1}'` -gt 0 ]; then
+
+                # Portas do port knocking, na sequencia que devem ser tocadas
+                PORTASK="`/usr/local/bin/xmllint --xpath "pfsense/filter/rule&#91;starts-with(descr, 'Port Knocking ${REGRA}') and interface = '${TABWAN}']" /conf/config.xml | grep "&lt;port>" | grep -v ^$ | cut -d ">" -f 2 | cut -d "&lt;" -f1 | tr "\n" "|" | sed 's/.$//'`"
+
+                # Portas que serao ignoradas na contagem, tiradas das regras na tab ${TABWAN}.
+                # A intencao aqui e evitar que conexoes legitimas sejam consideradas erros de sequencia de toque no port knocking desse script.
+                IGNOREPORTS="`/usr/local/bin/xmllint --xpath "pfsense/filter/rule&#91;interface = '${TABWAN}']/destination/port" /conf/config.xml | cut -d ">" -f2 | cut -d "&lt;" -f1 | tr "\n" "|" | sed 's/.$//'`"
+
+                # Removendo as portas do port knocking das portas encontradas na tab ${TABWAN} caso haja outras
+                QTDIGNOREPORTS=`echo $IGNOREPORTS | tr "|" " " | wc -w  | sed 's/ //g'`
+                QTDPORTASK=`echo $PORTASK | tr "|" " " | wc -w | sed 's/ //g'`
+                if &#91; ${QTDIGNOREPORTS} != ${QTDPORTASK} ]; then
+                        while &#91; ${QTDIGNOREPORTS} != 0 ]
+                        do
+                                QTDPRTSK=${QTDPORTASK}
+                                while &#91; ${QTDPRTSK} != 0 ]
+                                do
+                                        IPORT=`echo $IGNOREPORTS | cut -d "|" -f${QTDIGNOREPORTS}`
+                                        KPORT=`echo $PORTASK | cut -d "|" -f${QTDPRTSK}`
+                                        if &#91; ! -z ${IPORT} ]; then
+                                                if &#91; ${IPORT} = ${KPORT} ]; then
+                                                        IGNOREPORTS=`echo $IGNOREPORTS | sed 's/^/|/' | sed 's/$/|/' | sed "s/|${IPORT}|/|/" | sed 's/|$//' | sed 's/||/|/' | sed 's/^|//'`
+                                                fi
+                                        fi
+                                        QTDPRTSK=$((QTDPRTSK-1))
+                                done
+                                QTDIGNOREPORTS=$((QTDIGNOREPORTS-1))
+                        done
+                fi
+
+                # Adicionando a porta que sera aberta pelo port knocking e as ${EXTRAIGNOREPORTS} a variavel de portas a serem ignoradas
+                QTDEXTRAIGNOREPORTS=`echo ${EXTRAIGNOREPORTS} | tr "|" " " | wc -w | sed 's/ //g'`
+                while &#91; ${QTDEXTRAIGNOREPORTS} != 0 ]; do
+                        EIPORT=`echo ${EXTRAIGNOREPORTS} | cut -d "|" -f${QTDEXTRAIGNOREPORTS}`
+                                if &#91; ${EIPORT} == ${PORT} ]; then
+                                        EXTRAIGNOREPORTS=`echo ${EXTRAIGNOREPORTS} | sed "s/${EIPORT}//"`
+                                fi
+                        QTDEXTRAIGNOREPORTS=$((QTDEXTRAIGNOREPORTS-1))
+                done
+                if &#91; ${QTDIGNOREPORTS} != ${QTDPORTASK} ]; then
+                        IGNOREPORTS=`echo -n ${IGNOREPORTS} | sed 's/^|//' ; echo "|"${PORT}"|"${EXTRAIGNOREPORTS} | sed 's/||/|/' | sed 's/|$//'`
+                else
+                        IGNOREPORTS=`echo -n ${IGNOREPORTS} | echo ${PORT}"|"${EXTRAIGNOREPORTS} | sed 's/||/|/' | sed 's/|$//'`
+                fi
+
+                # Coletando informacoes do registro mais recente de conexao na primeira porta da sequencia do port knocking
+                PRIMEIRAPORTAK=`echo ${PORTASK} | awk -F "|" '{print $1}'`
+                REGPRIMEIRAPORTAK=`cat $LOGFILTER | grep -n ${IP} | grep ",${PRIMEIRAPORTAK}," | tail -1 | sed 's/:/ /' | cut -d " " -f1-4`
+                LINHAPRIMEIRAPORTAK=`echo ${REGPRIMEIRAPORTAK} | awk '{print $1}'`
+
+                # Analisando se o tempo entre o toque na primeira porta da sequencia e a ultima esta dentro de ${TIMEOUT} segundos
+                TSATUAL=`date +%s`
+                TSTIMEOUT=`echo "${TSATUAL} - ${TIMEOUT}" | bc`
+                TZANO=`date +%Z" "%Y`
+                DATAPRIMEIRAPORTAK=`echo ${REGPRIMEIRAPORTAK} | awk -v tzano="${TZANO}" '{print $2" "$3" "$4" "tzano}'`
+                TSPRIMEIRAPORTAK=`echo ${DATAPRIMEIRAPORTAK} | awk '{system("date -jf \"%a %b %d %t %z %Y\" \"Mon "$1" "$2" "$3" "$4" "$5"\" \"+%s\"")}'`
+                # Diferenca em segundos do momento em que esse script esta rodando e o toque na primeira porta da sequencia
+                # Lembrando que esse script so sera executado quando a ultima porta da sequencia do port knocking for tocada
+                DIFTS=`echo ${TSATUAL} - ${TSPRIMEIRAPORTAK} | bc `
+
+                # Separando a parte do log desde o ultimo toque dado na primeira porta da sequencia ate o final do mesmo
+                TOTALLINHASLOG=`cat $LOGFILTER | wc -l | awk '{print $1}'`
+                LINHASATEPRIMEIRAPORTAK=`echo "("${TOTALLINHASLOG} - ${LINHAPRIMEIRAPORTAK}") + 1" | bc`
+                QTDPORTAS=`cat $LOGFILTER | grep $IP | tail -${LINHASATEPRIMEIRAPORTAK} | cut -d "," -f 22 | egrep -vw $IGNOREPORTS | sort | uniq | wc -l`
+                # Coletando as portas acessadas.
+                PORTASACESSADAS=`cat $LOGFILTER | grep $IP | tail -${LINHASATEPRIMEIRAPORTAK} | cut -d "," -f 22 | egrep -vw $IGNOREPORTS | awk -v RS="&#91; \n]+" '!n&#91;$0]++' | sed 's/ //'`
+
+                # Checando sequencia de portas acessadas
+                if &#91; ${QTDPORTAS} -eq ${QTDPORTASK} -a ${DIFTS} -le ${TIMEOUT} ]; then
+                        while &#91; ${QTDPORTAS} != 0 ]; do
+                                if &#91; `echo ${PORTASACESSADAS} | cut -d " " -f${QTDPORTAS}` = `echo ${PORTASK} | cut -d "|" -f${QTDPORTASK}` ]; then
+                                        RESULTCHECK=1
+                                        QTDPORTAS=$((QTDPORTAS-1))
+                                        QTDPORTASK=$((QTDPORTASK-1))
+                                else
+                                        echo "`date` Sequencia invalida de portas acessadas" >> ${ARLOG}
+                                        RESULTCHECK=0
+                                        QTDPORTAS=0
+                                        QTDPORTASK=0
+                                fi
+                        done
+                        if &#91; ${RESULTCHECK} == 1 ]; then
+                                echo "pass in quick on ${INTWAN} proto ${PROTO} from ${IP} to port ${PORT}" | pfctl -a "userrules/${IP}_${PORT}_${PROTO}" -f -
+                                echo "`date` Liberacao da porta ${PORT}/${PROTO} para o IP ${IP} ativada!" >> ${ARLOG}
+                        fi
+
+                elif &#91; ${DIFTS} -gt ${TIMEOUT} ]; then
+                        echo "`date` Primeira porta (${PRIMEIRAPORTAK}) foi acessada a mais de ${TIMEOUT} segundos. Operacao nao realizada." >> ${ARLOG}
+                else
+                        echo "`date` Sequencia invalida de portas acessadas" >> ${ARLOG}
+                fi
+
+        else
+                echo "`date` Sem registros de conexoes desse IP ${IP}. Nada a fazer" >> ${ARLOG}
+        fi
+
+# Removendo ${IP}
+elif &#91; ${ACAO} == "delete" ]; then
+        pfctl -a "userrules/${IP}_${PORT}_${PROTO}" -F rules
+        if &#91; $? = 0 ]; then
+                echo "`date` IP ${IP} removido com sucesso!" >> ${ARLOG}
+        else
+                echo "Erro ao remover o IP ${IP}" >> ${ARLOG}
+        fi
+else
+        echo "`date` Operacao invalida" >> ${ARLOG}
+fi
+</code></pre>
+
+
+
+<p>Dê permissão de execução para o script:</p>
+
+
+
+<pre class="wp-block-code"><code>chmod +x /var/ossec/active-response/bin/portknocking.sh</code></pre>
+
+
+
+<h2>..::| Portas para liberação de conexão</h2>
+
+
+
+<p>Agora vamos criar as regras no pfSense para as portas que, quando tocadas na sequência correta, liberarão as portas do serviço SSH e a do HTTP. Essas regras serão de bloqueio, pois o que queremos é apenas logar os toques nelas.</p>
+
+
+
+<p>Escolhi a sequência de portas <strong>1111</strong>, <strong>1000</strong> e <strong>2000</strong>, para liberar a porta <strong>22/TCP</strong>, e as portas <strong>11</strong>, <strong>52</strong> e <strong>40</strong> para liberar a porta <strong>80/TCP</strong>. Todas com o protocolo TCP.</p>
+
+
+
+<p>É recomendado usar, no mínimo, 3 portas e que não sejam sequênciais (por exemplo: 1000, 1001 e 1002) para cada liberação pois, em casos de descoberta da primeira por um atacante, as demais seriam meio óbvias de adivinhar. Também é necessário marcar a opção de logar essas regras, para que os toques sejam registrados no <em>/var/log/filter.log</em>.</p>
+
+
+
+<p>Caso queira criar mais do que 3 portas de toques, basta criá-la(s) no pfSense. O script reconhece automaticamente quantas portas são necessárias nessa técnica.</p>
+
+
+
+<p>Na descrição de cada regra há um <strong>padrão extremamente importante</strong> para que o script funcione corretamente. Sempre escreva &#8220;<em>Port Knocking (número da regra no wazuh)</em>&#8221; pois o script irá procurar nesse campo as portas correspondentes ao Port Knocking em questão. Cada regra no wazuh (que serão criadas mais tarde) corresponde a uma liberação.</p>
+
+
+
+<figure class="wp-block-image size-full"><img width="1042" height="905" src="/wp-content/uploads/2022/03/3-criacao-regras-pfsense.png" alt="" class="wp-image-112"/><figcaption>É muito importante colocar a descrição da regra corretamente, seguindo o padrão acima descrito</figcaption></figure>
+
+
+
+<p>Crie todas as regras tal como a que foi criada na imagem acima, para cada uma das 6 portas (<strong>1111</strong>, <strong>1000</strong>, <strong>2000</strong> com a descrição &#8220;<em>Port Knocking 100001</em>&#8221; e <strong>11</strong>, <strong>52</strong> e <strong>40</strong> com a descrição &#8220;<em>Port Knocking 100002</em>&#8220;), ficando a tabela de regras WAN assim:</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1169" height="397" src="/wp-content/uploads/2022/03/3-regras-pk-pfsense.png" alt="" class="wp-image-113"/><figcaption>A ordem das regras será a sequência em que cada porta deverá ser tocada</figcaption></figure>
+
+
+
+<p>Aqui você também define a ordem em que as portas devem ser tocadas. Então após a criação das regras, coloque-as na ordem em que elas devem ser tocadas. Mesmo que os toques acertem as 3 portas, se não forem tocadas na ordem correta o script não irá liberar a porta do serviço solicitado.</p>
+
+
+
+<p>No exemplo acima não há outras regras além das desse artigo, mas se houvessem o script iria ignorá-las automaticamente para evitar que uma conexão legítima interfira na verificação dos toques.</p>
+
+
+
+<p>No servidor Debian crie as seguintes regras no arquivo <em>/var/ossec/etc/rules/local_rules.xml</em>:</p>
+
+
+
+<pre class="wp-block-code"><code>  &lt;rule id="100001" level="5">
+    &lt;if_sid>87701&lt;/if_sid>
+    &lt;dstport>2000&lt;/dstport>
+    &lt;description>Port knocking da porta SSH padrao&lt;/description>
+  &lt;/rule>
+
+  &lt;rule id="100002" level="5">
+    &lt;if_sid>87701&lt;/if_sid>
+    &lt;dstport>40&lt;/dstport>
+    &lt;description>Port knocking da porta HTTP padrao&lt;/description>
+  &lt;/rule></code></pre>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="875" height="512" src="/wp-content/uploads/2022/03/3-local-rules.png" alt="" class="wp-image-115"/><figcaption>Note que em &lt;dstport> foram colocadas apenas as últimas portas das sequências de cada liberação</figcaption></figure>
+
+
+
+<p>Acima foram criadas duas regras, uma para cada liberação (SSH e HTTP). Elas serão ativadas quando a última porta, da sequência correspondente ao serviço a ser liberado, for tocada pois assim significa que todas as anteriores necessárias já foram acessadas e, portanto, já logadas para serem lidas pelo script. Note que o número de cada regra (dentro de <em>&lt;rule id=&#8221;</em>) corresponde a descrição das regras criadas no pfSense anteriormente.</p>
+
+
+
+<p>Acrescente o comando e o active-response a seguir no arquivo <em>/var/ossec/etc/ossec.conf</em>, logo após o último <em>&lt;/command></em>:</p>
+
+
+
+<pre class="wp-block-code"><code>  &lt;command>
+    &lt;name>portknocking-ssh&lt;/name>
+    &lt;executable>portknocking.sh&lt;/executable>
+    &lt;!-- Adicione as seguintes informacoes separadas por virgula: nome da interface no SO, nome da interface wan no pfsense, protocolo, porta que sera liberada,
+        tempo (em segundos) entre os toques das portas, portas extras a ignorar (separadas por pipe |) -->
+    &lt;extra_args>em0,wan,tcp,22,120,22|80&lt;/extra_args>
+    &lt;timeout_allowed>yes&lt;/timeout_allowed>
+  &lt;/command>
+
+  &lt;command>
+    &lt;name>portknocking-http&lt;/name>
+    &lt;executable>portknocking.sh&lt;/executable>
+    &lt;!-- Adicione as seguintes informacoes separadas por virgula: nome da interface no SO, nome da interface wan no pfsense, protocolo, porta que sera liberada,
+        tempo (em segundos) entre os toques das portas, portas extras a ignorar (separadas por pipe |) -->
+    &lt;extra_args>em0,wan,tcp,80,120,80|22&lt;/extra_args>
+    &lt;timeout_allowed>yes&lt;/timeout_allowed>
+  &lt;/command>
+
+  &lt;active-response>
+    &lt;command>portknocking-ssh&lt;/command>
+    &lt;location>defined-agent&lt;/location>
+    &lt;agent_id>002&lt;/agent_id>
+    &lt;rules_id>100001&lt;/rules_id>
+    &lt;disabled>no&lt;/disabled>
+    &lt;timeout>60&lt;/timeout>
+  &lt;/active-response>
+
+  &lt;active-response>
+    &lt;command>portknocking-http&lt;/command>
+    &lt;location>defined-agent&lt;/location>
+    &lt;agent_id>002&lt;/agent_id>
+    &lt;rules_id>100002&lt;/rules_id>
+    &lt;disabled>no&lt;/disabled>
+    &lt;timeout>60&lt;/timeout>
+  &lt;/active-response>
+</code></pre>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1608" height="885" src="/wp-content/uploads/2022/03/3-command-ar-1.png" alt="" class="wp-image-144"/></figure>
+
+
+
+<p>Veja que em <em>&lt;extra_args>&lt;/extra_args></em> há informações importantes (separadas por vírgula) que precisam ser passadas ao <em>portknocking.sh</em>, que são:</p>
+
+
+
+<ul><li>Nome da interface WAN reconhecida pelo FreeBSD</li></ul>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1161" height="312" src="/wp-content/uploads/2022/03/3-em0.png" alt="" class="wp-image-119"/></figure>
+
+
+
+<ul><li>Nome da interface WAN dada pelo pfSense</li></ul>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1161" height="312" src="/wp-content/uploads/2022/03/3-wan.png" alt="" class="wp-image-120"/></figure>
+
+
+
+<ul><li>Protocolo do serviço que será liberado</li><li>Porta que será liberada</li><li>Tempo máximo (em segundos) entre o toque na primeira porta da sequência e a última</li><li>Portas que serão ignoradas na verificação dos toques. Deve-se colocar as portas que forem usadas em outras liberações.</li></ul>
+
+
+
+<p>A ordem em que essas informações são colocadas é vital para o correto funcionamento do script de liberação.</p>
+
+
+
+<p>Além disso, outra configuração muito importante é quanto ao tempo em que a regra de liberação de conexão ao serviço ficará ativa. Dentro da tag <em>&lt;timeout>&lt;/timeout></em> você estipula esse tempo em segundos.</p>
+
+
+
+<p>Reinicie o wazuh-manager:</p>
+
+
+
+<pre class="wp-block-code"><code>systemctl restart wazuh-manager</code></pre>
+
+
+
+<p>Se o pfSense foi recém instalado, os horários no <em>/var/log/filter.log</em> estarão diferentes da data do sistema operacional, gerando erro no script. Pra resolver, basta reiniciar o pfSense.</p>
+
+
+
+<p>Lembrando que a regra de liberação criada após a sequência correta de toques nas portas do Port Knocking só é visível pelo comando <em>pfctl</em>, portanto não aparecerá no painel administrativo do pfSense, já que ela não foi criada via <em>easyrules</em> (porque através desse comando não é possível remover uma regra criada, por isso tive que usar o <em>pfctl</em>).</p>
+
+
+
+<h2>..::| Limitações</h2>
+
+
+
+<p>Quando o active-response do Wazuh é ativado para um determinado IP de origem, esse mesmo IP não consegue ativar outro active-response enquanto o primeiro ainda estiver ativo. Como o script é executado no pfSense, o mesmo não tem como avisar o Wazuh quando, por exemplo, uma sequência de portas forem tocadas na ordem errada, e assim evitar a execução do active-response. Ele é executado quando a última porta da sequência é tocada, mesmo que ela esteja errada, e ficará ativo até o seu timeout expirar. Portanto, caso erre a sequência uma vez, deve-se esperar o tempo configurado em que a liberação estivesse ativa, para então fazer uma nova tentativa (tags <em>&lt;timeout>&lt;/timeout></em> no <em>/var/ossec/etc/ossec.conf</em> na seção do <em>&lt;active-response>&lt;/active-response></em>).</p>
+
+
+
+<p>Por causa dessa limitação, recomenda-se um timeout pequeno, de uns 5 minutos, só para fazer uma manutenção rápida remotamente. Caso precise de mais tempo, o recomendado é criar uma regra diretamente no pfSense liberando a conexão para o seu IP de origem.</p>
+
+
+
+<p>Por conta do que foi dito acima, também não é possível liberar as portas 22/TCP e 80/TCP ao mesmo tempo via Port Knocking. Quando uma for ativada, deve-se esperar o timeout dela passar para fazer o Port Knocking na outra.</p>
+
+
+
+<h2>..::| Testes</h2>
+
+
+
+<p>De um sistema linux, instale o <em>curl</em> e dê o seguinte comando (certifique-se que esse linux alcance a interface WAN do pfSense):</p>
+
+
+
+<pre class="wp-block-code"><code>curl --connect-timeout 1 http://10.0.0.200:1111/ ; curl --connect-timeout 1 http://10.0.0.200:1000/ ; curl --connect-timeout 1 http://10.0.0.200:2000/ ; ssh root@10.0.0.200</code></pre>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1900" height="473" src="/wp-content/uploads/2022/03/3-test-ssh.png" alt="" class="wp-image-124"/><figcaption>Veja que, após os 3 toques feitos pelo comando curl, o prompt de autenticação SSH do pfSense é mostrado</figcaption></figure>
+
+
+
+<p>Para verificar se a regra de liberação da porta do SSH foi criada com sucesso via <em>pfctl</em>, execute o comando no shell do pfSense:</p>
+
+
+
+<pre class="wp-block-code"><code>pfctl -a "userrules/IP_PORTA_PROTOCOLO" -sr</code></pre>
+
+
+
+<p>Por exemplo, se o IP <strong>10.0.0.182</strong> pediu liberação da porta <strong>22</strong> do protocolo <strong>TCP</strong>, o comando acima ficará:</p>
+
+
+
+<pre class="wp-block-code"><code>pfctl -a "userrules/10.0.0.182_22_tcp" -sr</code></pre>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="920" height="62" src="/wp-content/uploads/2022/03/3-pfctl-ssh.png" alt="" class="wp-image-126"/></figure>
+
+
+
+<p>No Windows, pode-se usar o PowerShell com o comando Test-NetConnection. Exemplo para a liberação da porta 22/TCP desse artigo:</p>
+
+
+
+<pre class="wp-block-code"><code>Test-NetConnection -Port 1111 10.0.0.200
+Test-NetConnection -Port 1000 10.0.0.200
+Test-NetConnection -Port 2000 10.0.0.200</code></pre>
+
+
+
+<h2>..::| Conclusão</h2>
+
+
+
+<p>Port Knocking é uma técnica que insere uma camada a mais de segurança para o acesso externo a sua rede. Com ele podemos evitar ataques de força bruta, por exemplo, e até ataques a aplicativos web em vulnerabilidades ainda não corrigidas. Não deixando uma porta sempre aberta para qualquer IP de origem bloqueia a detecção delas por escaneadores.</p>
+
+
+
+<p>Se um administrador de rede está em uma situação em que não pode realizar uma conexão VPN a sua rede, ele poderá acessar o roteador se lembrar das 3 (ou mais) portas que devem ser tocadas antes da liberação de uma porta para um serviço administrativo desse roteador, e assim poderá criar outras regras para uma outra conexão, entre outras manutenções possíveis. O fato dessa porta administrativa ser liberada apenas para o IP de origem que efetuou os toques do Port Knocking, e com tempo dessa liberação ser pré-determinado, torna essa técnica excelente para que o seu firewall seja mais eficaz.</p>
+
+
+
+<p>Em casos onde é possível estabelecer uma VPN, o Port Knocking também é útil pois poderá proteger a porta de conexão desse serviço. Não haveria necessidade de deixar essa porta sempre aberta para conexões. Nesse caso é recomendado criar um script, no lado do cliente, com os 3 (ou mais) toques já configurados para que se possa colocar um tempo maior de liberação (timeout) sem temer errar a sequência de portas, o que faria com que a porta do serviço solicitado ficasse inacessível pelo mesmo período em que estaria liberada. Geralmente uma VPN é necessária para períodos maiores de uso, por isso o timeout maior, nesse caso. Lembrando que o timeout vale para todos os active-response referente ao IP de origem.</p>
+
+
+
+<p>O Wazuh tem a capacidade de enviar e-mails de alertas para o administrador quando uma regra é acionada, mediante configuração nela. Ou seja, é possível monitorar os acessos por Port Knocking, bastando apenas configurar as regras no Wazuh referente a essa técnica para que enviem e-mails sempre que ativadas.</p>
+
+
+
+<p></p>
+
+
+
+<blockquote class="wp-block-quote"><p>Fontes:</p><p><a href="https://documentation.wazuh.com/current/user-manual/capabilities/active-response/custom-active-response.html" target="_blank" rel="noreferrer noopener">https://documentation.wazuh.com/current/user-manual/capabilities/active-response/custom-active-response.html</a><br><a href="https://forum.netgate.com/topic/147951/create-firewall-rules-by-script/4" target="_blank" rel="noreferrer noopener">https://forum.netgate.com/topic/147951/create-firewall-rules-by-script/4</a><br><a href="https://www.openbsd.org/faq/pf/anchors.html" target="_blank" rel="noreferrer noopener">https://www.openbsd.org/faq/pf/anchors.html</a><br><a href="http://woshub.com/checking-tcp-port-response-using-powershell/" target="_blank" rel="noreferrer noopener">http://woshub.com/checking-tcp-port-response-using-powershell/</a></p></blockquote>
+<p>O post <a rel="nofollow" href="/index.php/2022/03/31/port-knocking-no-pfsense-usando-wazuh/">Port Knocking no pfSense usando Wazuh</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>/index.php/2022/03/31/port-knocking-no-pfsense-usando-wazuh/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Wazuh criando regra no pfSense para bloquear IP de atacante</title>
+		<link>/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/</link>
+		
+		<dc:creator><![CDATA[marcius]]></dc:creator>
+		<pubDate>Fri, 11 Mar 2022 01:52:43 +0000</pubDate>
+				<category><![CDATA[Segurança]]></category>
+		<guid isPermaLink="false">http://localhost/?p=32</guid>
+
+					<description><![CDATA[<p>Quando o Wazuh identificar um ataque, ele pode criar uma regra em um ou mais pfSense para bloquear o IP desse atacante.</p>
+<p>O post <a rel="nofollow" href="/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/">Wazuh criando regra no pfSense para bloquear IP de atacante</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[
+<p>O cenário é o seguinte:</p>
+
+
+
+<ul><li>Debian Bullseye versão 5.10.92-1 com wazuh-manager 4.2.5-1 e elasticsearch, kibana e filebeat nas versões 7.14.2</li><li>pfSense CE 2.6.0-RELEASE</li><li>Ambos os servidores acima foram virtualizados em VirtualBox 6.1.32-2 em Arch Linux 5.16.13-arch1-1</li><li>O artigo parte do princípio que o wazuh-manager e o pfSense já estejam instalados, configurados e funcionais, como descrito acima</li><li>IP do servidor com wazuh-manager: 10.0.2.201/24</li><li>IP do servidor com pfSense: 10.0.2.200/24</li></ul>
+
+
+
+<h2>..::| Instalando o agente no pfSense</h2>
+
+
+
+<p>Pra facilitar o trabalho de fazer as configurações no pfSense, habilite o acesso via SSH nesse servidor, indo em <em>System -&gt; Advanced -&gt; </em>marque a opção<em> &#8220;Enable Secure Shell&#8221;</em>:</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1162" height="314" src="/wp-content/uploads/2022/03/2-ssh-pfsense.png" alt="" class="wp-image-56"/></figure>
+
+
+
+<p>Acesse o pfSense via SSH com o usuário root e instale o agente do Wazuh para FreeBSD 12 (base do pfSense):</p>
+
+
+
+<pre class="wp-block-code"><code>pkg add https://pkg.freebsd.org/FreeBSD:12:amd64/quarterly/All/wazuh-agent-4.1.5.pkg</code></pre>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1121" height="737" src="/wp-content/uploads/2022/03/2-install-wazuh-agent.png" alt="" class="wp-image-58"/></figure>
+
+
+
+<p>Configure o agente do Wazuh, editando o arquivo<em> /var/ossec/etc/ossec.conf </em>e alterando a palavra &#8220;<em>IP</em>&#8221; dentro da tag &#8220;<em>&lt;address&gt;IP&lt;/address&gt;</em>&#8221; para o IP do servidor do Wazuh (debian), que nesse artigo é o 10.0.2.201, ficando assim:</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="545" height="244" src="/wp-content/uploads/2022/03/2-wazuh-agent-config.png" alt="" class="wp-image-59"/></figure>
+
+
+
+<p>Salve e saia do arquivo.</p>
+
+
+
+<p>Agora vá na interface web do pfSense e instale a package &#8220;<em>Shellcmd</em>&#8221; para fazer com que o wazuh-agent inicie no boot desse servidor. Vá em <em>System -&gt; Package Manager -&gt; Available Packages</em>, procure por &#8220;<em>Shellcmd</em>&#8221; e o instale.</p>
+
+
+
+<p>Depois de instalado, acesse-o em <em>Services -&gt; Shellcmd</em>.</p>
+
+
+
+<p>Clique no botão &#8220;<em>+ Add</em>&#8221; e preencha o campo &#8220;<em>Command</em>&#8221; com &#8220;<em>/usr/local/etc/rc.d/wazuh-agent start</em>&#8221; e depois clique me &#8220;Save&#8221;.</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1145" height="305" src="/wp-content/uploads/2022/03/2-shellcmd.png" alt="" class="wp-image-60"/></figure>
+
+
+
+<p>Agora crie uma regra para o agente se conectar com o wazuh-manager, indo em <em>Firewall -&gt; Rules -&gt; LAN -&gt; ADD</em> e preencha da seguinte forma:</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1155" height="855" src="/wp-content/uploads/2022/03/2-regra-wazuh-agent.png" alt="" class="wp-image-61"/><figcaption>Lembre-se de substituir o IP 10.0.2.201 pelo do servidor onde está o wazuh-manager na sua arquitetura</figcaption></figure>
+
+
+
+<p>Salve e aplique a regra. Tome cuidado para que ela não seja bloqueada por uma possível outra regra de bloqueio antes dessa.</p>
+
+
+
+<p>Agora volte ao terminal conectado via SSH e habilite o agente:</p>
+
+
+
+<pre class="wp-block-code"><code>/usr/local/etc/rc.d/wazuh-agent enable</code></pre>
+
+
+
+<p>Inicie o agente:</p>
+
+
+
+<pre class="wp-block-code"><code>/usr/local/etc/rc.d/wazuh-agent start</code></pre>
+
+
+
+<p>Verifique se o agente iniciou normalmente:</p>
+
+
+
+<pre class="wp-block-code"><code>/usr/local/etc/rc.d/wazuh-agent onestatus</code></pre>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="708" height="150" src="/wp-content/uploads/2022/03/2-wazuh-agent-status.png" alt="" class="wp-image-62"/></figure>
+
+
+
+<p>Agora no painel do Wazuh, verifique se o novo agente se conectou ao servidor, indo no menu do <em>Wazuh -&gt; Management -&gt; Status</em>:</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="897" height="840" src="/wp-content/uploads/2022/03/2-wazuh-agent-conectado.png" alt="" class="wp-image-63"/></figure>
+
+
+
+<h2>..::| Script de bloqueio</h2>
+
+
+
+<p>Agora volte para a conexão SSH com o servidor do pfSense para criarmos um script que será responsável pela criação de regras de bloqueio com base em regras acionadas no wazuh-manager.</p>
+
+
+
+<p>Crie o arquivo <em>/var/ossec/active-response/bin/easyrule-pf.sh</em> com o seguinte conteúdo:</p>
+
+
+
+<pre class="wp-block-code"><code>#!/bin/sh
+# Script para adicionar IPs bloqueados pelo Wazuh no pfSense dentro do aliase "EasyRuleBlockHosts"
+# Expect: srcip
+# Author: Marcius da C. Silveira
+# Last modified: Mar 3, 2022
+
+ACAO=$1
+USUARIO=$2
+IP=$3
+
+
+# logando as atividades desse script
+echo "`date` $0 $1 $2 $3 $4 $5" &gt;&gt; /var/ossec/logs/active-responses.log
+
+
+# Erro se o IP nao for mencionado nos argumentos
+if &#91; "x${IP}" = "x" ]; then
+   echo "$0: Falta o IP no terceiro argumento &lt;acao&gt; &lt;usuario&gt; (IP)"
+   exit 1;
+fi
+
+
+# Coletando os nomes das interfaces do pfSense
+INTF=`/usr/local/bin/xmllint --xpath 'pfsense/interfaces/child::*' /conf/config.xml | grep '^&lt;' | tr -d '&lt;' | tr -d '&gt;'`
+QTDINTF=`echo ${INTF} | wc -w`
+# a ACAO sera feita para cada interface coletada acima
+# caso deseje executar a ACAO para interfaces especificas, especifique elas na varialvel INTF colocando espacos entre cada uma, por exemplo:
+# INTF="wan lan"
+while &#91; ${QTDINTF} != 0 ]; do
+	IF=`echo ${INTF} | cut -d ' ' -f ${QTDINTF}`
+	# Se o argumento ACAO for "add"
+	if &#91; "x${ACAO}" = "xadd" ]; then
+		/usr/local/bin/easyrule	block $IF "${IP}"
+	# Se o argumento ACAO for "delete"
+	elif &#91; "x${ACAO}" = "xdelete" ]; then
+		/usr/local/bin/easyrule unblock $IF "${IP}"
+
+	# Se o argumento ACAO for invalido
+	else
+	   echo "$0: acao invalida: ${ACAO}"
+	fi
+ 	QTDINTF=$((QTDINTF-1))
+done
+
+exit 1;</code></pre>
+
+
+
+<p>Dê as permissões 750 para esse arquivo:</p>
+
+
+
+<pre class="wp-block-code"><code>chmod 750 /var/ossec/active-response/bin/easyrule-pf.sh</code></pre>
+
+
+
+<p>Reinicie o agente:</p>
+
+
+
+<pre class="wp-block-code"><code>/usr/local/etc/rc.d/wazuh-agent restart</code></pre>
+
+
+
+<p>Agora vá até o servidor Debian onde está o wazuh-manager, e edite o arquivo <em>/var/ossec/etc/ossec.conf</em> acrescentando, depois do último &#8220;<em>&lt;/command&gt;</em>&#8220;, o seguinte conteúdo:</p>
+
+
+
+<pre class="wp-block-code"><code>  &lt;command&gt;
+    &lt;name&gt;easyrule-pfsense&lt;/name&gt;
+    &lt;executable&gt;easyrule-pf.sh&lt;/executable&gt;
+    &lt;timeout_allowed&gt;yes&lt;/timeout_allowed&gt;
+  &lt;/command&gt;
+
+  &lt;active-response&gt;
+    &lt;command&gt;easyrule-pfsense&lt;/command&gt;
+    &lt;location&gt;defined-agent&lt;/location&gt;
+    &lt;agent_id&gt;001&lt;/agent_id&gt;
+    &lt;rules_id&gt;5758&lt;/rules_id&gt;
+    &lt;disabled&gt;no&lt;/disabled&gt;
+  &lt;/active-response&gt;</code></pre>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="671" height="440" src="/wp-content/uploads/2022/03/2-wazuh-manager-active-response.png" alt="" class="wp-image-64"/></figure>
+
+
+
+<p>Nesse exemplo acima eu especifiquei o agente recém instalado no pfSense, cujo o código é 001. Caso queira que mais de um agente execute a ação de criar regras de bloqueio, adicione os códigos desses agentes os separando por uma vírgula (por exemplo: <code>&lt;agent_id&gt;001,009,021&lt;/agent_id&gt;</code>). Nesse caso, lembre-se de colocar o script &#8220;<em>easyrule-pf.sh</em>&#8221; nesses outros servidores também, como descrito acima, assim como configurar suas permissões.</p>
+
+
+
+<p>Aqui nesse exemplo eu também especifiquei uma regra que, quando acionada em algum ataque, irá executar o script &#8220;<em>easyrule-pf.sh</em>&#8221; no(s) agente(s) configurado(s) em &#8220;<em>&lt;agent_id&gt;</em>&#8220;. É possível colocar, ao invés de apenas uma regra, várias delas também as separando por vírgula, ou também um grupo de regras, mas nesse caso não se usa as tags &#8220;<em>&lt;rules_id&gt;&lt;/rules_id&gt;</em>&#8220;, e sim &#8220;<em>&lt;rules_group&gt;&lt;/rules_group&gt;</em>&#8220;, inserindo os nomes dos grupos que pretende usar (por exemplo: <code>&lt;rules_group&gt;authentication_failed|authentication_failures&lt;/rules_group&gt;</code>). Mais informações sobre as possibilidades de configuração dos tipos de gatilhos você encontra <a href="https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/active-response.html" target="_blank" rel="noreferrer noopener">aqui</a>.</p>
+
+
+
+<p>Reinicie o wazuh-manager:</p>
+
+
+
+<pre class="wp-block-code"><code>systemctl restart wazuh-manager</code></pre>
+
+
+
+<h2>..::| Testando</h2>
+
+
+
+<p>No exemplo acima, especifiquei uma regra cuja sua configuração detecta várias tentativas de login via SSH em um servidor. Para testar se o script que adiciona IP à regras de bloqueio no pfSense está funcionando, desabilitei a proteção SSH do pfSense indo em <em>System -&gt; Advanced</em>, na primeira aba chamada &#8220;<em>Admin Access</em>&#8220;, e logo abaixo em &#8220;<em>Login Protection</em>&#8221; adicionei o IP da minha máquina no campo &#8220;<em>Pass list</em>&#8220;, para que o pfSense permita que eu faça várias tentativas de login pelo SSH ao invés de me bloquear automaticamente por ele mesmo.</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1150" height="391" src="/wp-content/uploads/2022/03/2-pass-list-ip.png" alt="" class="wp-image-69"/></figure>
+
+
+
+<p>Agora tente se conectar várias vezes seguidas via SSH com uma senha errada, para testar se a regra 5758 será acionada fazendo com que o active-response configurado acima crie uma regra de bloqueio nas abas de cada interface de rede do pfSense.</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1171" height="302" src="/wp-content/uploads/2022/03/2-easyrule-1.png" alt="" class="wp-image-70"/></figure>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1163" height="301" src="/wp-content/uploads/2022/03/2-easyrule-2.png" alt="" class="wp-image-71"/></figure>
+
+
+
+<p>Veja que o script <em>easyrule-pf.sh</em>, usado no active-response, funcionou perfeitamente. Foi criada uma regra de bloqueio e um aliase chamado &#8220;<em>EasyRuleBlockHosts</em>&#8221; seguido do nome da interface, onde nele irá constar os IPs passados pelo wazuh-manager quando acionada a regra especificada nas configurações do active-response.</p>
+
+
+
+<h2>..::| Anti-lockout</h2>
+
+
+
+<p>Um detalhe importante, que deve ser observado, é quanto a regra criada na aba LAN:</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1160" height="534" src="/wp-content/uploads/2022/03/2-easyrule-lan.png" alt="" class="wp-image-73"/></figure>
+
+
+
+<p>Veja que o sistema &#8220;<em>Anti-Lockout</em>&#8220;, que por padrão vem ativado no pfSense para evitar que o administrador desse sistema não seja impedido de acessá-lo, ficará sempre em primeiro na lista de regras dessa aba. Como o teste que fiz acima era justamente para bloquear um acesso via SSH partindo de um IP na rede LAN do pfSense, a máquina usada no ataque não ficará bloqueada de fato, por conta desse &#8220;<em>Anti-Lockout</em>&#8220;.</p>
+
+
+
+<p>Uma solução nesse caso é criar uma regra de liberação da porta 80 ao pfSense, colocando em primeiro na lista da aba LAN, acima da regra de bloqueio que usa o aliase &#8220;<em>EasyRuleBlockHostsLAN</em>&#8220;, assim:</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" width="1156" height="534" src="/wp-content/uploads/2022/03/2-anti-lockout-manual.png" alt="" class="wp-image-74"/><figcaption>Observe que a regra deve ficar sempre na primeira posição, e em segundo a regra criada pelo &#8220;<em>easyrule-pf.sh</em>&#8220;</figcaption></figure>
+
+
+
+<p>Depois desative o sistema &#8220;<em>Anti-Lockout</em>&#8221; (em <em>System -&gt; Advanced -&gt;</em> marcar a opção &#8220;<em>Disable webConfigurator anti-lockout rule</em>&#8220;). Nesse momento você notará que não haverá mais aquela regra padrão no topo da aba LAN, ficando parecida com a imagem acima.</p>
+
+
+
+<h2>..::| Conclusão e considerações finais</h2>
+
+
+
+<p>Com essa técnica será possível ter uma blacklist própria com base em ataques direcionados a sua rede, e replicar para todos os seus gateways o IP do atacante, bloqueando-o antes que o mesmo tente um novo ataque por outros caminhos.</p>
+
+
+
+<p>É importante lembrar também que os IPs de atacantes, na maioria das vezes, não são sempre os mesmos. Ou seja, depois de alguns dias as operadoras fornecem um novo IP para seus usuários, e isso pode implicar em bloqueios errados, pois um cliente da sua empresa pode acabar recebendo um IP que foi usado recentemente em um ataque, impossibilitando-o de acessar um servidor da sua rede, por exemplo. </p>
+
+
+
+<p>Por isso, é importante colocar um tempo de bloqueio para cada IP, e após esses dias tirá-lo dos aliases das regras criadas pelo &#8220;<em>easyrule-pf.sh</em>&#8220;. Isso é configurável através da opção &#8220;<em>&lt;timeout&gt;</em>&#8221; dentro do &#8220;<em>&lt;active-response&gt;&lt;/active-response&gt;</em>&#8221; no &#8220;<em>/var/ossec/etc/ossec.conf</em>&#8221; dentro do servidor do wazuh-manager, e colocar um valor em segundos (por exemplo, para 8 dias de bloqueio: <code>&lt;timeout&gt;691200&lt;/timeout&gt;</code>).</p>
+
+
+
+<p></p>
+
+
+
+<blockquote class="wp-block-quote is-style-default"><p>Fontes:<br><a href="https://techviewleo.com/how-to-install-wazuh-server-on-debian/" target="_blank" rel="noreferrer noopener">https://techviewleo.com/how-to-install-wazuh-server-on-debian/</a><br><a href="https://documentation.wazuh.com/" target="_blank" rel="noreferrer noopener">https://documentation.wazuh.com/</a><br><a href="https://groups.google.com/g/wazuh/c/pc4IAOIjW-E?pli=1" target="_blank" rel="noreferrer noopener">https://groups.google.com/g/wazuh/c/pc4IAOIjW-E?pli=1</a><br><a href="https://freebsd.pkgs.org/12/freebsd-amd64/wazuh-agent-4.1.5.pkg.html" target="_blank" rel="noreferrer noopener">https://freebsd.pkgs.org/12/freebsd-amd64/wazuh-agent-4.1.5.pkg.html</a><br><a href="https://docs.netgate.com/pfsense/en/latest/development/boot-commands.html" target="_blank" rel="noreferrer noopener">https://docs.netgate.com/pfsense/en/latest/development/boot-commands.html</a><br><a href="https://documentation.wazuh.com/current/user-manual/capabilities/active-response/how-it-works.html#active-response-configuration" target="_blank" rel="noreferrer noopener">https://documentation.wazuh.com/current/user-manual/capabilities/active-response/how-it-works.html#active-response-configuration</a><br><a href="https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/active-response.html#reference-ossec-active-response" target="_blank" rel="noreferrer noopener">https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/active-response.html#reference-ossec-active-response</a></p></blockquote>
+<p>O post <a rel="nofollow" href="/index.php/2022/03/11/wazuh-criando-regra-no-pfsense-para-bloquear-ip-de-atacante/">Wazuh criando regra no pfSense para bloquear IP de atacante</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+	</channel>
+</rss>
