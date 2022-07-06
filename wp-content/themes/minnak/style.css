@@ -424,6 +424,12 @@ html {
 	font-display: swap;
 }
 
+@font-face { 
+font-family: Century Gothic-Regular; 
+src: url(http://marcius.pro/wp-content/themes/minnak/fonts/CenturyGothic.ttf); 
+font-weight: normal; 
+}
+
 body,
 button,
 input,
@@ -2689,4 +2695,8 @@ body.dark-theme,
 	.no-results .search-form-in-page{
 		width: 250px;
 	}
+}
+
+wazuh-logo { 
+font-family: "Century Gothic-Regular", Arial, sans-serif; 
 }
