@@ -18,7 +18,7 @@
 	hourly	</sy:updatePeriod>
 	<sy:updateFrequency>
 	1	</sy:updateFrequency>
-	<generator>https://wordpress.org/?v=5.9.1</generator>
+	<generator>https://wordpress.org/?v=6.4.3</generator>
 	<item>
 		<title>Redimensionando disco virtual no Debian com partição LVM sem perda de dados</title>
 		<link>/index.php/2022/03/11/redimensionando-disco-virtual-no-debian-com-particao-lvm-sem-perda-de-dados/</link>
@@ -48,7 +48,7 @@
 
 
 
-<h1>..::|&nbsp;<strong>Redimensionando</strong></h1>
+<h1 class="wp-block-heading">..::|&nbsp;<strong>Redimensionando</strong></h1>
 
 
 
@@ -56,7 +56,7 @@
 
 
 
-<figure class="wp-block-image size-full"><img width="502" height="179" src="http://localhost/wp-content/uploads/2022/03/1-fdisk-sdb.png" alt="" class="wp-image-16"/></figure>
+<figure class="wp-block-image size-full"><img fetchpriority="high" decoding="async" width="502" height="179" src="http://localhost/wp-content/uploads/2022/03/1-fdisk-sdb.png" alt="" class="wp-image-16"/></figure>
 
 
 
@@ -72,7 +72,7 @@
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="470" height="35" src="http://localhost/wp-content/uploads/2022/03/1-lvscan-edit-1.png" alt="" class="wp-image-17"/></figure>
+<figure class="wp-block-image size-full"><img decoding="async" width="470" height="35" src="http://localhost/wp-content/uploads/2022/03/1-lvscan-edit-1.png" alt="" class="wp-image-17"/></figure>
 
 
 
@@ -104,7 +104,7 @@
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="543" height="497" src="http://localhost/wp-content/uploads/2022/03/1-parted-edit-1.png" alt="" class="wp-image-18"/></figure>
+<figure class="wp-block-image size-full"><img decoding="async" width="543" height="497" src="http://localhost/wp-content/uploads/2022/03/1-parted-edit-1.png" alt="" class="wp-image-18"/></figure>
 
 
 
@@ -116,7 +116,7 @@
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="612" height="50" src="http://localhost/wp-content/uploads/2022/03/1-pvresize-sdb1png.png" alt="" class="wp-image-20"/><figcaption><em>Com o comando “sudo pvs” você pode confirmar se o tamanho do physical volume foi aumentado com sucesso.</em></figcaption></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="612" height="50" src="http://localhost/wp-content/uploads/2022/03/1-pvresize-sdb1png.png" alt="" class="wp-image-20"/><figcaption><em>Com o comando “sudo pvs” você pode confirmar se o tamanho do physical volume foi aumentado com sucesso.</em></figcaption></figure>
 
 
 
@@ -128,7 +128,7 @@
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="801" height="65" src="http://localhost/wp-content/uploads/2022/03/1-lvextend-edit.png" alt="" class="wp-image-21"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="801" height="65" src="http://localhost/wp-content/uploads/2022/03/1-lvextend-edit.png" alt="" class="wp-image-21"/></figure>
 
 
 
@@ -144,7 +144,7 @@
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="637" height="130" src="http://localhost/wp-content/uploads/2022/03/1-e2fsck.png" alt="" class="wp-image-22"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="637" height="130" src="http://localhost/wp-content/uploads/2022/03/1-e2fsck.png" alt="" class="wp-image-22"/></figure>
 
 
 
@@ -152,7 +152,7 @@
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="549" height="72" src="http://localhost/wp-content/uploads/2022/03/1-resize2fs.png" alt="" class="wp-image-23"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="549" height="72" src="http://localhost/wp-content/uploads/2022/03/1-resize2fs.png" alt="" class="wp-image-23"/></figure>
 
 
 
@@ -168,7 +168,7 @@
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="496" height="177" src="http://localhost/wp-content/uploads/2022/03/1-mount.png" alt="" class="wp-image-24"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="496" height="177" src="http://localhost/wp-content/uploads/2022/03/1-mount.png" alt="" class="wp-image-24"/></figure>
 
 
 

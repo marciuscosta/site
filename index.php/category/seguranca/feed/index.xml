@@ -12,14 +12,545 @@
 	<atom:link href="/index.php/category/seguranca/feed/" rel="self" type="application/rss+xml" />
 	<link>/</link>
 	<description>Profissional em redes de computadores e segurança cibernética</description>
-	<lastBuildDate>Fri, 01 Apr 2022 21:06:47 +0000</lastBuildDate>
+	<lastBuildDate>Wed, 28 Feb 2024 11:25:14 +0000</lastBuildDate>
 	<language>pt-BR</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
 	<sy:updateFrequency>
 	1	</sy:updateFrequency>
-	<generator>https://wordpress.org/?v=5.9.1</generator>
+	<generator>https://wordpress.org/?v=6.4.3</generator>
 	<item>
+		<title>Integrando o AbuseIPDB ao Wazuh com cache de informações</title>
+		<link>/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh-com-cache-local/</link>
+					<comments>/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh-com-cache-local/#respond</comments>
+		
+		<dc:creator><![CDATA[marcius]]></dc:creator>
+		<pubDate>Tue, 27 Feb 2024 19:19:09 +0000</pubDate>
+				<category><![CDATA[Segurança]]></category>
+		<guid isPermaLink="false">/?p=208</guid>
+
+					<description><![CDATA[<p>Tenha um banco de dados local sobre informações obtidas do AbuseIPDB a respeito de IPs suspeitos ativando essa integração inteligente com o Wazuh. </p>
+<p>O post <a rel="nofollow" href="/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh-com-cache-local/">Integrando o AbuseIPDB ao Wazuh com cache de informações</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[
+<p>O cenário é o seguinte:</p>
+
+
+
+<ul>
+<li>Debian 12.4 com kernel 6.1.0-18-amd64 virtualizado em VirtualBox 6.1.50</li>
+
+
+
+<li>Wazuh versão 4.7.2 (Manager, Indexer e Dashboard no mesmo servidor)</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">..::| Principais características dessa integração</h2>
+
+
+
+<p>Essa integração é diferente da que está no blog do Wazuh (<a href="https://wazuh.com/blog/detecting-known-bad-actors-with-wazuh-and-abuseipdb/" target="_blank" rel="noreferrer noopener">link</a>).</p>
+
+
+
+<ul>
+<li>Evita realizar múltiplas consultas seguidas do mesmo IP em um curto intervalo de tempo, isso ajudará a prevenir que o limite diário de consultas seja atingido prematuramente.</li>
+
+
+
+<li>Faz cache local das consultas, salvando-as em um banco da dados SQLite 3.</li>
+
+
+
+<li>Informações dos IPs salvos em cache expiram após um tempo configurável, obrigando a uma nova consulta no API do AbuseIPDB após expirar.</li>
+
+
+
+<li>Tem gerenciador próprio de chaves de API, podendo usar mais de uma.</li>
+
+
+
+<li>Quando uma chave de API tem seu limite diário excedido, evita usá-la novamente e tentará outra, caso você tenha cadastrado mais de uma.</li>
+
+
+
+<li>Volta a usar uma chave de API, que excedeu o limite diário de uso, após a próxima meia-noite (UTC).</li>
+
+
+
+<li>Baixa uma blacklist do AbuseIPDB.</li>
+
+
+
+<li>Verifica na blacklist se já existe o IP a ser pesquisado antes de consultá-lo na API do AbuseIPDB (essa verificação na blacklist tem que ser ativada).</li>
+
+
+
+<li>No alerta do AbuseIPDB, várias informações do alerta original são exibidas para facilitar a análise.</li>
+
+
+
+<li>Procura por IPv4 ou IPv6 em vários campos possíveis, não apenas o &#8220;srcip&#8221;.</li>
+
+
+
+<li>Possibilidade de adicionar mais campos do alerta onde é possível ter um IP público.</li>
+
+
+
+<li>Não faz consultas de IPs que não sejam públicos.</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">..::| Pré-requisitos</h2>
+
+
+
+<ul>
+<li>Ter o Python 3 instalado. Normalmente ele vem com o Wazuh e fica em <em>/var/ossec/framework/python/bin/python3</em>. Se precisar alterar o caminho do executável &#8220;<em>python3</em>&#8220;, altere o valor da variável &#8220;<em>PYTHON_EXEC</em>&#8221; do arquivo &#8220;<em>custom-abuseipdb</em>&#8221; e o shebang do &#8220;<em>custom-abuseipdb.py</em>&#8220;.</li>
+
+
+
+<li>Pacotes do Python necessários: sys, json, time, os, fcntl, re, random, datetime, traceback, subprocess, requests, sqlite3 e ipaddress.</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">..::| Instalação</h2>
+
+
+
+<p>Faça o download do script principal de integração:</p>
+
+
+
+<pre class="wp-block-code"><code>sudo wget https://raw.githubusercontent.com/marciuscosta/abuseipdb-wazuh-integration/main/custom-abuseipdb.py -O /var/ossec/integrations/custom-abuseipdb.py</code></pre>
+
+
+
+<p>Agora do script de facilitação de uso:</p>
+
+
+
+<pre class="wp-block-code"><code>sudo wget https://raw.githubusercontent.com/marciuscosta/abuseipdb-wazuh-integration/main/custom-abuseipdb -O /var/ossec/integrations/custom-abuseipdb</code></pre>
+
+
+
+<p>Esse script só irá facilitar o uso do &#8220;<em>custom-abuseipdb.py</em>&#8221; na hora de administrar chaves de API e baixar blacklist, mais adiante.</p>
+
+
+
+<p>No Wazuh, para um script customizado de integração ser aceito pelo sistema, o seu nome de arquivo precisa começar com &#8220;<em>custom-</em>&#8221; e ele deve estar dentro do diretório <em>/var/ossec/integrations/</em>.</p>
+
+
+
+<p>Altere suas permissões com os seguintes comandos:</p>
+
+
+
+<pre class="wp-block-code"><code><code>sudo chmod 750 /var/ossec/integrations/custom-abuseipdb
+sudo chown root:wazuh /var/ossec/integrations/custom-abuseipdb
+sudo chmod 750 /var/ossec/integrations/custom-abuseipdb.py
+sudo chown root:wazuh /var/ossec/integrations/custom-abuseipdb.py</code></code></pre>
+
+
+
+<p>Para configurar a integração desse script Python no Wazuh, antes de tudo você precisará definir quais regras, ou grupo de regras, serão usadas para chamar essa integração.</p>
+
+
+
+<p>No exemplo que citarei abaixo, irei usar um grupo de regras específico para essa integração. Ou seja, sempre que uma regra estiver nesse grupo de regras, que chamarei de &#8220;<em>abuseipdb_integration</em>&#8220;, e ela for usada em algum alerta, o conteúdo completo desse alerta será enviado para o &#8220;<em>custom-abuseipdb.py</em>&#8221; processar. O resultado do processamento desse script será outro alerta, que veremos mais adiante.</p>
+
+
+
+<p>Abra o <em>/var/ossec/etc/ossec.conf</em> e inclua essa integração abaixo dentro de &#8220;<em>&lt;ossec_config&gt; … &lt;/ossec_config&gt;</em>&#8220;:</p>
+
+
+
+<pre class="wp-block-code"><code><code>&lt;integration&gt;
+    &lt;name&gt;custom-abuseipdb.py&lt;/name&gt;
+    &lt;group&gt;abuseipdb_integration,&lt;/group&gt;
+    &lt;alert_format&gt;json&lt;/alert_format&gt;
+&lt;/integration&gt;
+
+&lt;localfile&gt;
+    &lt;location&gt;/var/ossec/logs/integrations.log&lt;/location&gt;
+    &lt;log_format&gt;syslog&lt;/log_format&gt;
+&lt;/localfile&gt;</code></code></pre>
+
+
+
+<p>Note que nessa integração, diferente da que foi publicada no blog do Wazuh, não há os campos &#8220;<em>&lt;hook_url&gt;</em>&#8221; e &#8220;<em>&lt;api_key&gt;</em>&#8220;, pois a URL da API do AbuseIPDB e a(s) chave(s) de API que você irá usar não ficarão aqui, mas dentro do próprio script (no caso da URL da API) e no banco de dados de cache de informações dessa integração (no caso da(s) chave(s) de API), que veremos mais adiante em detalhes. Toda a administração de chave(s) de API será feita pelo script &#8220;<em>custom-abuseipdb.py</em>&#8220;.</p>
+
+
+
+<p>Você também poderá citar regras específicas para integração, ao invés do grupo de regras. Basta tirar o &#8220;<em>&lt;group&gt;abuseipdb_integration,&lt;/group&gt;</em>&#8221; e colocar &#8220;<em>&lt;rule_id&gt;ID_DA_REGRA&lt;/rule_id&gt;</em>&#8221; com as IDs separadas por vírgula. Ambos não funcionam juntos na mesma integração, a menos que um ID citado em &#8220;<em>&lt;rule_id&gt;</em>&#8221; faça parte de um grupo de regras que está citado em &#8220;<em>&lt;group&gt;</em>&#8221; também na mesma integração.</p>
+
+
+
+<p>O Wazuh irá monitorar o log <em>/var/ossec/logs/integrations.log</em>, que é o local onde ficam salvos os resultados da integração. Se quiser, você poderá alterar esse local, abrindo o &#8220;<em>custom-abuseipdb.py</em>&#8221; e informando o novo arquivo de log na variável &#8220;<em>log_file</em>&#8220;. Porém, lembre-se de alterar a &#8220;<em>&lt;location&gt;</em>&#8221; das configurações de integração no <em>ossec.conf</em> (que fizemos acima) para esse novo local.</p>
+
+
+
+<p>Antes de criarmos a primeira regra do novo grupo &#8220;<em>abuseipdb_integration</em>&#8220;, vamos adicionar a chave API do AbuseIPDB que temos.</p>
+
+
+
+<p>Caso você não tenha uma chave de API ainda, precisará criar uma agora. Primeiro, crie uma conta (caso já não tenha) no <a href="https://www.abuseipdb.com/pricing" target="_blank" rel="noreferrer noopener">https://www.abuseipdb.com/pricing</a> que é muito simples. Quando você já tiver a sua conta, acesse-a e vá no menu com o nome que você deu a essa conta, que fica no canto superior direito da tela, clique nele e depois em &#8220;<em>Account</em>&#8220;. Na página inicial que irá abrir, clique na aba &#8220;<em>API</em>&#8221; e depois em &#8220;<em>Create Key</em>&#8221; (caso você já não tenha uma chave API):</p>
+
+
+
+<figure class="wp-block-image size-large"><img fetchpriority="high" decoding="async" width="1024" height="888" src="/wp-content/uploads/2024/02/abuseipdb-create-key-1-1024x888.png" alt="" class="wp-image-212" srcset="/wp-content/uploads/2024/02/abuseipdb-create-key-1-1024x888.png 1024w, /wp-content/uploads/2024/02/abuseipdb-create-key-1-300x260.png 300w, /wp-content/uploads/2024/02/abuseipdb-create-key-1-768x666.png 768w, /wp-content/uploads/2024/02/abuseipdb-create-key-1.png 1122w" sizes="(max-width: 1024px) 100vw, 1024px" /></figure>
+
+
+
+<p>Dê um nome para a sua chave, depois clique em &#8220;<em>Create</em>&#8220;. Copie a chave que irá aparecer no campo &#8220;<em>Key</em>&#8221; e a salve em local seguro.</p>
+
+
+
+<p>Perceba que o limite de &#8220;<em>checks</em>&#8221; por dia é de 1000 na conta gratuíta. Se você tiver 2 ou mais contas no AbuseIPDB, por exemplo, poderá criar 2 ou mais chaves de API e, com isso, terá um limite diário de 2000 (ou mais) consultas a essa API. O script de integração fará a administração automaticamente dessas chaves. Ou seja, quando uma exceder o limite diário, ele marcará ela para não ser usada até a próxima meia-noite (UTC &#8211; o que dá 21:00 no horário de Brasília), passando a usar a outra chave de API disponível. Na próxima meia-noite (UTC) as contagens de uso dessas chaves serão zeradas pelo próprio AbuseIPDB. Não tenho informações sobre se há limites de consultas por um IP de origem, mas em meus testes eu consegui fazer 2 mil consultas com 2 chaves de API diferentes, usando um mesmo IP de origem, e não fui bloqueado e nem a minha conta foi invalidada de alguma forma.</p>
+
+
+
+<p>Adicione a chave de API criada ao banco de dados de cache local do script, com o seguinte comando:</p>
+
+
+
+<pre class="wp-block-code"><code><code>sudo /var/ossec/integrations/custom-abuseipdb apikey add COLE_SUA_CHAVE_AQUI</code></code></pre>
+
+
+
+<figure class="wp-block-image size-large"><img decoding="async" width="1024" height="126" src="/wp-content/uploads/2024/02/custom-abuseipdb-apikey-add-1-1024x126.png" alt="" class="wp-image-237" srcset="/wp-content/uploads/2024/02/custom-abuseipdb-apikey-add-1-1024x126.png 1024w, /wp-content/uploads/2024/02/custom-abuseipdb-apikey-add-1-300x37.png 300w, /wp-content/uploads/2024/02/custom-abuseipdb-apikey-add-1-768x94.png 768w, /wp-content/uploads/2024/02/custom-abuseipdb-apikey-add-1-1536x189.png 1536w, /wp-content/uploads/2024/02/custom-abuseipdb-apikey-add-1.png 1904w" sizes="(max-width: 1024px) 100vw, 1024px" /></figure>
+
+
+
+<p>Para listar as chaves de API salvas no banco de dados de cache local, digite o comando:</p>
+
+
+
+<pre class="wp-block-code"><code><code>sudo /var/ossec/integrations/custom-abuseipdb apikey list</code></code></pre>
+
+
+
+<p><img decoding="async" width="1904" height="394" class="wp-image-215" style="" src="/wp-content/uploads/2024/02/custom-abuseipdb-apikey-list.png" alt="" srcset="/wp-content/uploads/2024/02/custom-abuseipdb-apikey-list.png 1904w, /wp-content/uploads/2024/02/custom-abuseipdb-apikey-list-300x62.png 300w, /wp-content/uploads/2024/02/custom-abuseipdb-apikey-list-1024x212.png 1024w, /wp-content/uploads/2024/02/custom-abuseipdb-apikey-list-768x159.png 768w, /wp-content/uploads/2024/02/custom-abuseipdb-apikey-list-1536x318.png 1536w" sizes="(max-width: 1904px) 100vw, 1904px" /></p>
+
+
+
+<p>Perceba que na direita há o campo &#8220;<em>Usable after</em>&#8220;. Significa que essa chave de API estará apta para uso após esse dia e horário (com base no relógio desse servidor). Se a data estiver a frente do momento atual, significa que ela excedeu o limite diário de consultas na API, e poderá ser usada novamente somente após a próxima meia-noite do fuso horário UTC, o que será às 21:00 no fuso-horário de Brasília. No entanto, para evitar problemas de dessincronização do horário atual do servidor com o de Brasília, coloquei 2 minutos além da meia-noite (que, no horário de Brasília, é 21:02).</p>
+
+
+
+<p>Se a chave de API for considerada inválida pelo AbuseIPDB, o campo &#8220;<em>Usable after</em>&#8221; estará com o valor &#8220;<em>INVALID</em>&#8221; logo após o script de integração tentar usá-la. Em nenhum momento essa chave será usada novamente na integração.</p>
+
+
+
+<p>Para remover uma chave de API do banco de dados de cache local, use o comando (mas não a remova agora pois iremos usá-la nos testes mais adiante):</p>
+
+
+
+<pre class="wp-block-code"><code><code>sudo /var/ossec/integrations/custom-abuseipdb apikey remove CHAVE_API_A_SER_EXCLUÍDA</code></code></pre>
+
+
+
+<p>Agora vamos instalar os decoders que irão extrair as informações oriundas da API do AbuseIPDB, possibilitando criar regras com base nessas informações. Execute essa linha de comandos:</p>
+
+
+
+<pre class="wp-block-code"><code>sudo wget https://raw.githubusercontent.com/marciuscosta/abuseipdb-wazuh-integration/main/1600-abuseipdb-integration_decoders.xml -O /var/ossec/etc/decoders/1600-abuseipdb-integration_decoders.xml &amp;&amp; sudo chmod 660 /var/ossec/etc/decoders/1600-abuseipdb-integration_decoders.xml &amp;&amp; sudo chown wazuh: /var/ossec/etc/decoders/1600-abuseipdb-integration_decoders.xml</code></pre>
+
+
+
+<p>Agora vamos criar algumas regras que irão gerar alertas com base nos resultados da integração com o AbuseIPDB. Para ficar organizado, vamos criar o arquivo <em>/var/ossec/etc/rules/1600-abuseipdb-integration_rules.xml</em> onde ficarão essas regras, com o seguinte conteúdo:</p>
+
+
+
+<pre class="wp-block-code"><code>&lt;group name="abuseipdb,"&gt;
+
+    &lt;rule id="110000" level="3"&gt;
+            &lt;decoded_as&gt;abuseipdb&lt;/decoded_as&gt;
+            &lt;description&gt;AbuseIPDB: Integration message.&lt;/description&gt;
+    &lt;/rule&gt;
+
+
+    &lt;rule id="110001" level="3"&gt;
+            &lt;if_sid&gt;110000&lt;/if_sid&gt;
+            &lt;field name="abuseipdb.ip.score"&gt;\d+&lt;/field&gt;
+            &lt;description&gt;AbuseIPDB: Informations about IP $(srcip).&lt;/description&gt;
+    &lt;/rule&gt;
+
+    &lt;!-- Caso o IP tenha um confidence score igual ou maior a 70 --&gt;
+    &lt;rule id="110002" level="12"&gt;
+            &lt;if_sid&gt;110001&lt;/if_sid&gt;
+            &lt;field name="abuseipdb.ip.score" type="pcre2"&gt;^((7|8|9)\d|100)&lt;/field&gt;
+            &lt;description&gt;AbuseIPDB: IP $(srcip) have $(abuseipdb.ip.score) confidence score.&lt;/description&gt;
+    &lt;/rule&gt;
+
+    &lt;rule id="110003" level="7"&gt;
+            &lt;if_sid&gt;110000&lt;/if_sid&gt;
+            &lt;field name="abuseipdb.error_message"&gt;\.+&lt;/field&gt;
+            &lt;description&gt;AbuseIPDB: Integration error message.&lt;/description&gt;
+    &lt;/rule&gt;
+
+    &lt;rule id="110004" level="7"&gt;
+            &lt;if_sid&gt;110003&lt;/if_sid&gt;
+            &lt;field name="abuseipdb.error_message"&gt;All API key\(s\) stored in local cache database has been exceeded daily limit or invalid&lt;/field&gt;
+            &lt;description&gt;AbuseIPDB: All saved API key(s) are invalid or have exceeded the daily limit.&lt;/description&gt;
+    &lt;/rule&gt;
+
+&lt;/group&gt;</code></pre>
+
+
+
+<p>Ajuste as permissões desse arquivo:</p>
+
+
+
+<pre class="wp-block-code"><code><code>sudo chmod 660 /var/ossec/etc/rules/1600-abuseipdb-integration_rules.xml &amp;&amp; sudo chown wazuh: /var/ossec/etc/rules/1600-abuseipdb-integration_rules.xml</code></code></pre>
+
+
+
+<p>Agora vamos criar algumas regras que irão chamar essa integração.</p>
+
+
+
+<p>Apesar do script conseguir identificar um IP público, e com isso ele evita fazer pesquisas na API do AbuseIPDB quando não é um IP público, é bom evitar que esse script de integração seja executado em situações que não há necessidade de fazer consulta de um IP através dessa integração. Vamos criar regras que filtrem os IPs, identificando apenas os públicos. Isso evitará consumo desnecessário de recursos de processamento do servidor.</p>
+
+
+
+<p>Vou usar o arquivo <em>/var/ossec/etc/rules/local_rules.xml</em> para criar algumas regras de exemplo. Logo abaixo da regra <em>100001</em>, insira:</p>
+
+
+
+<pre class="wp-block-code"><code>  &lt;var name="filter_non-public_ip"&gt;10\.\d+\.\d+\.\d+|192\.168\.|172.(1&#91;6-9]|2&#91;0-9]|3&#91;0-1])\.\d+\.\d+|127\.\d+\.\d+\.\d+|169.254.\d+\.\d+|244\.\d+\.\d+\.\d+|0{0,3}(|:){0,6}0{0,3}(::|:)0{0,3}1|fe8(0|):\S+|fc(00|0|):\S+|fd(00|0|):\S+&lt;/var&gt;
+
+  &lt;rule id="100002" level="5"&gt;
+    &lt;if_sid&gt;5760&lt;/if_sid&gt;
+    &lt;match negate="yes" type="pcre2"&gt;(?i)Failed password for \S+ from $filter_non-public_ip port \d+&lt;/match&gt;
+    &lt;description&gt;sshd: Authentication failed from a public IP address $(srcip).&lt;/description&gt;
+    &lt;group&gt;authentication_failed,authentication_success,pci_dss_10.2.4,pci_dss_10.2.5,abuseipdb_integration,&lt;/group&gt;
+  &lt;/rule&gt;
+
+  &lt;rule id="100003" level="5"&gt;
+    &lt;if_sid&gt;5715&lt;/if_sid&gt;
+    &lt;match negate="yes" type="pcre2"&gt;(?i)Accepted password for \S+ from $filter_non-public_ip port \d+&lt;/match&gt;
+    &lt;description&gt;sshd: Authentication succeeded from a public IP address $(srcip).&lt;/description&gt;
+    &lt;group&gt;authentication_failed,authentication_success,pci_dss_10.2.4,pci_dss_10.2.5,abuseipdb_integration,&lt;/group&gt;
+  &lt;/rule&gt;</code></pre>
+
+
+
+<p>Observe que as duas regras estão no grupo &#8220;<em>abuseipdb_integration</em>&#8220;. Então, quando usadas em um alerta, chamará a integração &#8220;<em>custom-abuseipdb.py</em>&#8220;, que procurará informações desse IP localmente no banco de dados de cache dessa integração e também na blacklist (se habilitada &#8211; veremos mais adiante como ela funcionará). Se as informações sobre o IP do alerta não forem encontradas localmente, ou se as suas informações em cache estiverem muito antigas (esse tempo de expiração de informação no cache é configurável), fará uma consulta na API do AbuseIPDB e o seu resultado ficará salvo no banco de dados de cache da integração para evitar consultas repetidas do mesmo IP logo após a primeira, economizando &#8220;<em>checks</em>&#8221; diários da API.</p>
+
+
+
+<p>Vamos carregar essas novas regras, decoders e ativar a integração reiniciando o Wazuh Manager.</p>
+
+
+
+<pre class="wp-block-code"><code>sudo /var/ossec/bin/wazuh-control restart</code></pre>
+
+
+
+<p><img loading="lazy" decoding="async" width="1007" height="939" class="wp-image-225" style="" src="/wp-content/uploads/2024/02/custom-abuseipdb-manager-restart.png" alt="" srcset="/wp-content/uploads/2024/02/custom-abuseipdb-manager-restart.png 1007w, /wp-content/uploads/2024/02/custom-abuseipdb-manager-restart-300x280.png 300w, /wp-content/uploads/2024/02/custom-abuseipdb-manager-restart-768x716.png 768w" sizes="(max-width: 1007px) 100vw, 1007px" /></p>
+
+
+
+<h2 class="wp-block-heading">..::| Primeiros testes</h2>
+
+
+
+<p>Vou criar um arquivo de log para inserir eventos de autenticação de SSH, porém usando IPs públicos, justamente para chamar a integração. </p>
+
+
+
+<p>Então vou criar o arquivo de log <em>/var/log/testes.log</em> primeiro e ajustarei suas permissões:</p>
+
+
+
+<pre class="wp-block-code"><code>sudo touch /var/log/testes.log &amp;&amp; sudo chmod 662 /var/log/testes.log</code></pre>
+
+
+
+<p>Agora vamos configurar o seu monitoramento no <em>/var/ossec/etc/ossec.conf </em> dentro da seção &#8220;<em>&lt;ossec_config&gt; … &lt;/ossec_config&gt;</em>&#8221; dessa forma:</p>
+
+
+
+<pre class="wp-block-code"><code>    &lt;localfile&gt;
+        &lt;location&gt;/var/log/testes.log&lt;/location&gt;
+        &lt;log_format&gt;syslog&lt;/log_format&gt;
+    &lt;/localfile&gt;</code></pre>
+
+
+
+<p>Para ativar o monitoramento desse log de testes, reiniciamos o Wazuh Manager:</p>
+
+
+
+<pre class="wp-block-code"><code>sudo /var/ossec/bin/wazuh-control restart</code></pre>
+
+
+
+<p>Agora vamos inserir um evento nesse <em>testes.log</em>, porém com IP público:</p>
+
+
+
+<pre class="wp-block-code"><code>sudo echo '2024-02-25T15:28:09.658271-03:00 srv-wazuh sshd&#91;64497]: Failed password for root from 159.223.85.11 port 57414 ssh2' &gt;&gt; /var/log/testes.log</code></pre>
+
+
+
+<p>Agora, se tudo deu certo, aparecerá esse evento no Wazuh Dashboard, e outro alerta do AbuseIPDB, fornecendo informações sobre o IP de origem desse evento teste.</p>
+
+
+
+<figure class="wp-block-image size-large"><img loading="lazy" decoding="async" width="1024" height="371" src="/wp-content/uploads/2024/02/custom-abuseipdb-primeiro-teste-1024x371.png" alt="" class="wp-image-235" srcset="/wp-content/uploads/2024/02/custom-abuseipdb-primeiro-teste-1024x371.png 1024w, /wp-content/uploads/2024/02/custom-abuseipdb-primeiro-teste-300x109.png 300w, /wp-content/uploads/2024/02/custom-abuseipdb-primeiro-teste-768x278.png 768w, /wp-content/uploads/2024/02/custom-abuseipdb-primeiro-teste-1536x556.png 1536w, /wp-content/uploads/2024/02/custom-abuseipdb-primeiro-teste.png 1906w" sizes="(max-width: 1024px) 100vw, 1024px" /></figure>
+
+
+
+<p>Veja como ficaram as informações do alerta gerado pela integração:</p>
+
+
+
+<figure class="wp-block-image size-large"><img loading="lazy" decoding="async" width="1024" height="633" src="/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte1-1024x633.png" alt="" class="wp-image-239" srcset="/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte1-1024x633.png 1024w, /wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte1-300x186.png 300w, /wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte1-768x475.png 768w, /wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte1.png 1421w" sizes="(max-width: 1024px) 100vw, 1024px" /></figure>
+
+
+
+<figure class="wp-block-image size-large"><img loading="lazy" decoding="async" width="1024" height="674" src="/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte2-1024x674.png" alt="" class="wp-image-240" srcset="/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte2-1024x674.png 1024w, /wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte2-300x197.png 300w, /wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte2-768x505.png 768w, /wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte2.png 1417w" sizes="(max-width: 1024px) 100vw, 1024px" /></figure>
+
+
+
+<p>Observe o campo &#8220;<em>data.abuseipdb.alert.ID</em>&#8220;. Nele há o ID do alerta que chamou essa integração, que no caso foi a falha de autenticação SSH. Podemos buscar o alerta original filtrando por essa ID, dessa forma:</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="943" height="503" src="/wp-content/uploads/2024/02/custom-abuseipdb-filtrar-alertaID.png" alt="" class="wp-image-242" srcset="/wp-content/uploads/2024/02/custom-abuseipdb-filtrar-alertaID.png 943w, /wp-content/uploads/2024/02/custom-abuseipdb-filtrar-alertaID-300x160.png 300w, /wp-content/uploads/2024/02/custom-abuseipdb-filtrar-alertaID-768x410.png 768w" sizes="(max-width: 943px) 100vw, 943px" /></figure>
+
+
+
+<figure class="wp-block-image size-large"><img loading="lazy" decoding="async" width="1024" height="503" src="/wp-content/uploads/2024/02/custom-abuseipdb-resultado-filtrar-alertaID-1024x503.png" alt="" class="wp-image-243" srcset="/wp-content/uploads/2024/02/custom-abuseipdb-resultado-filtrar-alertaID-1024x503.png 1024w, /wp-content/uploads/2024/02/custom-abuseipdb-resultado-filtrar-alertaID-300x147.png 300w, /wp-content/uploads/2024/02/custom-abuseipdb-resultado-filtrar-alertaID-768x377.png 768w, /wp-content/uploads/2024/02/custom-abuseipdb-resultado-filtrar-alertaID-1536x754.png 1536w, /wp-content/uploads/2024/02/custom-abuseipdb-resultado-filtrar-alertaID.png 1695w" sizes="(max-width: 1024px) 100vw, 1024px" /></figure>
+
+
+
+<h2 class="wp-block-heading">..::| Usando a blacklist</h2>
+
+
+
+<p>É possível usar esse script de integração para baixar e usar uma blacklist do AbuseIPDB. Na conta gratuíta, essa blacklist vem limitada a 10 mil IPs e pode ser baixada até 5 vezes no mesmo dia.</p>
+
+
+
+<p>Por padrão, o uso da blacklist vem desabilitado no script de integração. Para habilitar, edite o arquivo &#8220;<em>custom-abuseipdb.py</em>&#8221; e altere o valor da variável &#8220;<em>blacklist_enabled</em>&#8221; para &#8220;<em>True</em>&#8220;.  </p>
+
+
+
+<figure class="wp-block-image size-large"><img loading="lazy" decoding="async" width="1024" height="396" src="/wp-content/uploads/2024/02/custom-abuseipdb-blacklist-enabled-1024x396.png" alt="" class="wp-image-246" srcset="/wp-content/uploads/2024/02/custom-abuseipdb-blacklist-enabled-1024x396.png 1024w, /wp-content/uploads/2024/02/custom-abuseipdb-blacklist-enabled-300x116.png 300w, /wp-content/uploads/2024/02/custom-abuseipdb-blacklist-enabled-768x297.png 768w, /wp-content/uploads/2024/02/custom-abuseipdb-blacklist-enabled.png 1382w" sizes="(max-width: 1024px) 100vw, 1024px" /></figure>
+
+
+
+<p>Ao ativar o uso de blacklist na integração, os IPs a serem consultados serão pesquisados primeiro no banco de dados de cache local e, se não encontrado, a pesquisa será feita na blacklist, que será baixada automaticamente caso não exista localmente.</p>
+
+
+
+<p>Se quiser baixá-la manualmente antes, execute esse comando:</p>
+
+
+
+<pre class="wp-block-code"><code>sudo /var/ossec/integrations/custom-abuseipdb blacklist</code></pre>
+
+
+
+<p>Somente se o IP a ser consultado não estiver no banco de dados de cache local e na blacklist é que ele será consultado diretamente na API do AbuseIPDB.</p>
+
+
+
+<p>No entanto, as informações sobre um IP na blacklist são limitadas apenas aos campos &#8220;<em>IP</em>&#8220;, &#8220;<em>Country</em>&#8220;, &#8220;<em>Score</em>&#8221; e &#8220;<em>Last Reported</em>&#8220;. Como são menos informações do que as que são provenientes da API, por esse motivo o script irá procurar primeiro no banco de dados de cache local.</p>
+
+
+
+<p>Recomendo colocar para baixá-la automaticamente 1 vez ao dia. Por exemplo, você pode colocar o script para baixar a blacklist todos os dias a meia-noite, inserindo a seguinte linha no seu crontab (coloque no usuário root por causa das permissões de execução):</p>
+
+
+
+<pre class="wp-block-code"><code>0   0   *   *   *   /var/ossec/integrations/custom-abuseipdb blacklist</code></pre>
+
+
+
+<h2 class="wp-block-heading">..::| Customizações</h2>
+
+
+
+<p>Você poderá alterar várias coisas nesse script. Ao abrir o &#8220;<em>custom-abuseipdb.py</em>&#8221; você observará a seção &#8220;<em>Global variables definitions</em>&#8220;, onde é possível alterar várias coisas, entre elas:</p>
+
+
+
+<ul>
+<li>&#8220;<em><strong><font color="white">ip_fields</font></strong></em>&#8221; = É uma lista com os nomes dos campos, do alerta que o Wazuh envia para a integração, onde geralmente estão os IPs. Você pode adicionar mais campos apenas alimentando a lista, colocando entre aspas simples separando por vírgula. Os campos devem estar dentro da chave &#8220;<em>data</em>&#8221; do JSON do alerta, ou em alguma das suas possíveis subchaves. O script pegará todas as informações de todos os campos dessa lista que ele encontrar no alerta, não apenas o primeiro que encontrar.</li>
+
+
+
+<li>&#8220;<em><strong><font color="white">abuseipdb_local_cache_file</font></strong></em>&#8221; = Local do arquivo com o banco de dados de cache das informações obtidas de consultas a API do AbuseIPDB. Nesse arquivo também há as chaves de API salvas para uso do próprio script.</li>
+
+
+
+<li>&#8220;<em><strong><font color="white">log_file</font></strong></em>&#8221; = Local onde ficarão salvos os eventos provenientes da integração. Aqui ficarão todas as informações obtidas a respeito do IP pesquisado, e também informações sobre o alerta original, ou seja, o que chamou a integração inicialmente. Sobre o alerta original, foram excluídos os campos &#8220;<em>full_log</em>&#8221; e &#8220;<em>previous_output</em>&#8221; para evitar loop de decodificação pelo Wazuh. Aqui também ficarão outras mensagens a respeito da execução do script, como por exemplo algum erro ou informação importante.</li>
+
+
+
+<li>&#8220;<em><strong><font color="white">blacklist_enabled</font></strong></em>&#8221; = Se estiver como &#8220;<em>True</em>&#8220;, verificará na blacklist se a informação a respeito do IP pesquisado é encontrado. Se ainda não foi feito o download da blacklist, o script fará automaticamente no primeiro uso e somente dessa vez. Por isso é importante atualizar diariamente a blacklist, colocando na cron (como mencionei anteriormente). A intenção é evitar fazer pesquisas na API. Se estiver como &#8220;<em>False</em>&#8220;, a blacklist não será usada pela integração e nem será feito o download automaticamente no primeiro uso.</li>
+
+
+
+<li>&#8220;<em><strong><font color="white">blacklist_file</font></strong></em>&#8221; = Local onde ficará salva a blacklist ao ser baixada pelo script.</li>
+
+
+
+<li>&#8220;<em><strong><font color="white">confidenceMinimum</font></strong></em>&#8221; = É o valor mínimo de scores dos IPs que farão parte da blacklist. Em contas gratuítas, é recomendado não alterar isso.</li>
+
+
+
+<li>&#8220;<em><strong><font color="white">ip_expiration_time</font></strong></em>&#8221; = Tempo de armazenamento das informações de um IP no banco de dados de cache local. Esse valor deverá ser configurado em segundos. O valor padrão é de 86400, ou seja, 24 horas. Nesse caso, se um IP tiver sido inserido no banco de dados de cache local há mais de 24 horas, o script atualizará essa informação nesse banco de dados fazendo uma consulta a API do AbuseIPDB assim que esse IP aparecer em algum alerta que chamará a integração novamente.</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">..::| Conclusões</h2>
+
+
+
+<p>Com essa integração, informações muito importantes a respeito de um IP ficarão fáceis de serem consultadas. Não haverá a necessidade de pesquisar cada IP manualmente quando ele for um suspeito.</p>
+
+
+
+<p>Além disso, fazer regras com base no score do IP ficou muito fácil. Como mostrei no exemplo da regra 110002, onde um alerta será gerado com level 12 quando um IP consultado no AbuseIPDB tiver um score igual ou maior que 70. Você também poderá criar um active-response para bloquear um IP com base nesse score. Podendo, por exemplo, criar uma regra onde, se o IP consultado tiver 100 de confidence score, ativará o active-response para bloqueá-lo em seus firewalls de borda de rede. Nesse exemplo, seria praticamente impossível um IP com 100 de score não ser malicioso, então as chances de um bloqueio com base num alerta falso-positivo serão praticamente nulas.</p>
+
+
+
+<p>Agora você também poderá fazer regras com base em outras informações. Por exemplo, quando o IP for de um determinado país, você poderá criar uma regra com base nessa informação, assim como em outras informações como de qual ISP é esse IP, quantos registros de atos suspeitos ele tem, se ele pertence a rede TOR, se está em uma whitelist (para evitar falsos-positivos), etc.</p>
+
+
+
+<p>Uma recomendação: configure a rotação do log <em>/var/ossec/logs/integrations.log</em> com o <a href="https://www.dicas-l.com.br/arquivo/utilizando_logrotate.php" target="_blank" rel="noreferrer noopener">logrotate</a> do Linux ou similar, pois o Wazuh não rotaciona esse log automaticamente e ele pode ficar muito grande, dependendo da sua infra.</p>
+
+
+
+<p>Com certeza as informações passadas por essa integração ajudará bastante na tomada de decisões e na estratégia de segurança da sua empresa.</p>
+
+
+
+<blockquote class="wp-block-quote">
+<p>Fontes:<br><br><a href="https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/integration.html" target="_blank" rel="noreferrer noopener">https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/integration.html</a><br><a href="https://wazuh.com/blog/detecting-known-bad-actors-with-wazuh-and-abuseipdb/" target="_blank" rel="noreferrer noopener">https://wazuh.com/blog/detecting-known-bad-actors-with-wazuh-and-abuseipdb/</a></p>
+</blockquote>
+<p>O post <a rel="nofollow" href="/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh-com-cache-local/">Integrando o AbuseIPDB ao Wazuh com cache de informações</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh-com-cache-local/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
 		<title>Port Knocking no pfSense usando Wazuh</title>
 		<link>/index.php/2022/03/31/port-knocking-no-pfsense-usando-wazuh/</link>
 					<comments>/index.php/2022/03/31/port-knocking-no-pfsense-usando-wazuh/#respond</comments>
@@ -41,7 +572,7 @@
 
 
 
-<h2>..::| Objetivo</h2>
+<h2 class="wp-block-heading">..::| Objetivo</h2>
 
 
 
@@ -57,7 +588,7 @@
 
 
 
-<h2>..::| Enviando registros ao wazuh-manager</h2>
+<h2 class="wp-block-heading">..::| Enviando registros ao wazuh-manager</h2>
 
 
 
@@ -84,7 +615,7 @@
 
 
 
-<h2>..::| Script portknocking.sh</h2>
+<h2 class="wp-block-heading">..::| Script portknocking.sh</h2>
 
 
 
@@ -249,7 +780,7 @@ fi
 
 
 
-<h2>..::| Portas para liberação de conexão</h2>
+<h2 class="wp-block-heading">..::| Portas para liberação de conexão</h2>
 
 
 
@@ -273,7 +804,7 @@ fi
 
 
 
-<figure class="wp-block-image size-full"><img width="1042" height="905" src="/wp-content/uploads/2022/03/3-criacao-regras-pfsense.png" alt="" class="wp-image-112"/><figcaption>É muito importante colocar a descrição da regra corretamente, seguindo o padrão acima descrito</figcaption></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1042" height="905" src="/wp-content/uploads/2022/03/3-criacao-regras-pfsense.png" alt="" class="wp-image-112"/><figcaption>É muito importante colocar a descrição da regra corretamente, seguindo o padrão acima descrito</figcaption></figure>
 
 
 
@@ -281,7 +812,7 @@ fi
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1169" height="397" src="/wp-content/uploads/2022/03/3-regras-pk-pfsense.png" alt="" class="wp-image-113"/><figcaption>A ordem das regras será a sequência em que cada porta deverá ser tocada</figcaption></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1169" height="397" src="/wp-content/uploads/2022/03/3-regras-pk-pfsense.png" alt="" class="wp-image-113"/><figcaption>A ordem das regras será a sequência em que cada porta deverá ser tocada</figcaption></figure>
 
 
 
@@ -311,7 +842,7 @@ fi
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="875" height="512" src="/wp-content/uploads/2022/03/3-local-rules.png" alt="" class="wp-image-115"/><figcaption>Note que em &lt;dstport> foram colocadas apenas as últimas portas das sequências de cada liberação</figcaption></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="875" height="512" src="/wp-content/uploads/2022/03/3-local-rules.png" alt="" class="wp-image-115"/><figcaption>Note que em &lt;dstport> foram colocadas apenas as últimas portas das sequências de cada liberação</figcaption></figure>
 
 
 
@@ -362,7 +893,7 @@ fi
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1608" height="885" src="/wp-content/uploads/2022/03/3-command-ar-1.png" alt="" class="wp-image-144"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1608" height="885" src="/wp-content/uploads/2022/03/3-command-ar-1.png" alt="" class="wp-image-144"/></figure>
 
 
 
@@ -374,7 +905,7 @@ fi
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1161" height="312" src="/wp-content/uploads/2022/03/3-em0.png" alt="" class="wp-image-119"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1161" height="312" src="/wp-content/uploads/2022/03/3-em0.png" alt="" class="wp-image-119"/></figure>
 
 
 
@@ -382,7 +913,7 @@ fi
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1161" height="312" src="/wp-content/uploads/2022/03/3-wan.png" alt="" class="wp-image-120"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1161" height="312" src="/wp-content/uploads/2022/03/3-wan.png" alt="" class="wp-image-120"/></figure>
 
 
 
@@ -414,7 +945,7 @@ fi
 
 
 
-<h2>..::| Limitações</h2>
+<h2 class="wp-block-heading">..::| Limitações</h2>
 
 
 
@@ -430,7 +961,7 @@ fi
 
 
 
-<h2>..::| Testes</h2>
+<h2 class="wp-block-heading">..::| Testes</h2>
 
 
 
@@ -442,7 +973,7 @@ fi
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1900" height="473" src="/wp-content/uploads/2022/03/3-test-ssh.png" alt="" class="wp-image-124"/><figcaption>Veja que, após os 3 toques feitos pelo comando curl, o prompt de autenticação SSH do pfSense é mostrado</figcaption></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1900" height="473" src="/wp-content/uploads/2022/03/3-test-ssh.png" alt="" class="wp-image-124"/><figcaption>Veja que, após os 3 toques feitos pelo comando curl, o prompt de autenticação SSH do pfSense é mostrado</figcaption></figure>
 
 
 
@@ -462,7 +993,7 @@ fi
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="920" height="62" src="/wp-content/uploads/2022/03/3-pfctl-ssh.png" alt="" class="wp-image-126"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="920" height="62" src="/wp-content/uploads/2022/03/3-pfctl-ssh.png" alt="" class="wp-image-126"/></figure>
 
 
 
@@ -476,7 +1007,7 @@ Test-NetConnection -Port 2000 10.0.0.200</code></pre>
 
 
 
-<h2>..::| Conclusão</h2>
+<h2 class="wp-block-heading">..::| Conclusão</h2>
 
 
 
@@ -530,7 +1061,7 @@ Test-NetConnection -Port 2000 10.0.0.200</code></pre>
 
 
 
-<h2>..::| Instalando o agente no pfSense</h2>
+<h2 class="wp-block-heading">..::| Instalando o agente no pfSense</h2>
 
 
 
@@ -538,7 +1069,7 @@ Test-NetConnection -Port 2000 10.0.0.200</code></pre>
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1162" height="314" src="/wp-content/uploads/2022/03/2-ssh-pfsense.png" alt="" class="wp-image-56"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1162" height="314" src="/wp-content/uploads/2022/03/2-ssh-pfsense.png" alt="" class="wp-image-56"/></figure>
 
 
 
@@ -550,7 +1081,7 @@ Test-NetConnection -Port 2000 10.0.0.200</code></pre>
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1121" height="737" src="/wp-content/uploads/2022/03/2-install-wazuh-agent.png" alt="" class="wp-image-58"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1121" height="737" src="/wp-content/uploads/2022/03/2-install-wazuh-agent.png" alt="" class="wp-image-58"/></figure>
 
 
 
@@ -558,7 +1089,7 @@ Test-NetConnection -Port 2000 10.0.0.200</code></pre>
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="545" height="244" src="/wp-content/uploads/2022/03/2-wazuh-agent-config.png" alt="" class="wp-image-59"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="545" height="244" src="/wp-content/uploads/2022/03/2-wazuh-agent-config.png" alt="" class="wp-image-59"/></figure>
 
 
 
@@ -578,7 +1109,7 @@ Test-NetConnection -Port 2000 10.0.0.200</code></pre>
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1145" height="305" src="/wp-content/uploads/2022/03/2-shellcmd.png" alt="" class="wp-image-60"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1145" height="305" src="/wp-content/uploads/2022/03/2-shellcmd.png" alt="" class="wp-image-60"/></figure>
 
 
 
@@ -586,7 +1117,7 @@ Test-NetConnection -Port 2000 10.0.0.200</code></pre>
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1155" height="855" src="/wp-content/uploads/2022/03/2-regra-wazuh-agent.png" alt="" class="wp-image-61"/><figcaption>Lembre-se de substituir o IP 10.0.2.201 pelo do servidor onde está o wazuh-manager na sua arquitetura</figcaption></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1155" height="855" src="/wp-content/uploads/2022/03/2-regra-wazuh-agent.png" alt="" class="wp-image-61"/><figcaption>Lembre-se de substituir o IP 10.0.2.201 pelo do servidor onde está o wazuh-manager na sua arquitetura</figcaption></figure>
 
 
 
@@ -618,7 +1149,7 @@ Test-NetConnection -Port 2000 10.0.0.200</code></pre>
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="708" height="150" src="/wp-content/uploads/2022/03/2-wazuh-agent-status.png" alt="" class="wp-image-62"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="708" height="150" src="/wp-content/uploads/2022/03/2-wazuh-agent-status.png" alt="" class="wp-image-62"/></figure>
 
 
 
@@ -626,11 +1157,11 @@ Test-NetConnection -Port 2000 10.0.0.200</code></pre>
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="897" height="840" src="/wp-content/uploads/2022/03/2-wazuh-agent-conectado.png" alt="" class="wp-image-63"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="897" height="840" src="/wp-content/uploads/2022/03/2-wazuh-agent-conectado.png" alt="" class="wp-image-63"/></figure>
 
 
 
-<h2>..::| Script de bloqueio</h2>
+<h2 class="wp-block-heading">..::| Script de bloqueio</h2>
 
 
 
@@ -726,7 +1257,7 @@ exit 1;</code></pre>
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="671" height="440" src="/wp-content/uploads/2022/03/2-wazuh-manager-active-response.png" alt="" class="wp-image-64"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="671" height="440" src="/wp-content/uploads/2022/03/2-wazuh-manager-active-response.png" alt="" class="wp-image-64"/></figure>
 
 
 
@@ -746,7 +1277,7 @@ exit 1;</code></pre>
 
 
 
-<h2>..::| Testando</h2>
+<h2 class="wp-block-heading">..::| Testando</h2>
 
 
 
@@ -754,7 +1285,7 @@ exit 1;</code></pre>
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1150" height="391" src="/wp-content/uploads/2022/03/2-pass-list-ip.png" alt="" class="wp-image-69"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1150" height="391" src="/wp-content/uploads/2022/03/2-pass-list-ip.png" alt="" class="wp-image-69"/></figure>
 
 
 
@@ -762,11 +1293,11 @@ exit 1;</code></pre>
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1171" height="302" src="/wp-content/uploads/2022/03/2-easyrule-1.png" alt="" class="wp-image-70"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1171" height="302" src="/wp-content/uploads/2022/03/2-easyrule-1.png" alt="" class="wp-image-70"/></figure>
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1163" height="301" src="/wp-content/uploads/2022/03/2-easyrule-2.png" alt="" class="wp-image-71"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1163" height="301" src="/wp-content/uploads/2022/03/2-easyrule-2.png" alt="" class="wp-image-71"/></figure>
 
 
 
@@ -774,7 +1305,7 @@ exit 1;</code></pre>
 
 
 
-<h2>..::| Anti-lockout</h2>
+<h2 class="wp-block-heading">..::| Anti-lockout</h2>
 
 
 
@@ -782,7 +1313,7 @@ exit 1;</code></pre>
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1160" height="534" src="/wp-content/uploads/2022/03/2-easyrule-lan.png" alt="" class="wp-image-73"/></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1160" height="534" src="/wp-content/uploads/2022/03/2-easyrule-lan.png" alt="" class="wp-image-73"/></figure>
 
 
 
@@ -794,7 +1325,7 @@ exit 1;</code></pre>
 
 
 
-<figure class="wp-block-image size-full"><img loading="lazy" width="1156" height="534" src="/wp-content/uploads/2022/03/2-anti-lockout-manual.png" alt="" class="wp-image-74"/><figcaption>Observe que a regra deve ficar sempre na primeira posição, e em segundo a regra criada pelo &#8220;<em>easyrule-pf.sh</em>&#8220;</figcaption></figure>
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="1156" height="534" src="/wp-content/uploads/2022/03/2-anti-lockout-manual.png" alt="" class="wp-image-74"/><figcaption>Observe que a regra deve ficar sempre na primeira posição, e em segundo a regra criada pelo &#8220;<em>easyrule-pf.sh</em>&#8220;</figcaption></figure>
 
 
 
@@ -802,7 +1333,7 @@ exit 1;</code></pre>
 
 
 
-<h2>..::| Conclusão e considerações finais</h2>
+<h2 class="wp-block-heading">..::| Conclusão e considerações finais</h2>
 
 
 

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="profile" href="https://gmpg.org/xfn/11">
+
+	<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+
+	<!-- This site is optimized with the Yoast SEO plugin v18.3 - https://yoast.com/wordpress/plugins/seo/ -->
+	<title>Integrando o AbuseIPDB ao Wazuh - Marcius Costa</title>
+	<link rel="canonical" href="https://marcius.pro/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh/">
+	<meta property="og:locale" content="pt_BR">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Integrando o AbuseIPDB ao Wazuh - Marcius Costa">
+	<meta property="og:description" content="Tenha um banco de dados local sobre informações obtidas do AbuseIPDB a respeito de IPs suspeitos ativando essa integração inteligente com o Wazuh.">
+	<meta property="og:url" content="https://marcius.pro/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh/">
+	<meta property="og:site_name" content="Marcius Costa">
+	<meta property="article:published_time" content="2024-02-27T19:19:09+00:00">
+	<meta property="og:image" content="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-titulo-1.png">
+	<meta property="og:image:width" content="1200">
+	<meta property="og:image:height" content="675">
+	<meta property="og:image:type" content="image/png">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:label1" content="Escrito por">
+	<meta name="twitter:data1" content="marcius">
+	<meta name="twitter:label2" content="Est. tempo de leitura">
+	<meta name="twitter:data2" content="17 minutos">
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://marcius.pro/#website","url":"https://marcius.pro/","name":"Marcius Costa","description":"Profissional em redes de computadores e segurança cibernética","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://marcius.pro/?s={search_term_string}"},"query-input":"required name=search_term_string"}],"inLanguage":"pt-BR"},{"@type":"ImageObject","@id":"https://marcius.pro/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh/#primaryimage","inLanguage":"pt-BR","url":"https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-titulo-1.png","contentUrl":"https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-titulo-1.png","width":1200,"height":675},{"@type":"WebPage","@id":"https://marcius.pro/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh/#webpage","url":"https://marcius.pro/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh/","name":"Integrando o AbuseIPDB ao Wazuh - Marcius Costa","isPartOf":{"@id":"https://marcius.pro/#website"},"primaryImageOfPage":{"@id":"https://marcius.pro/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh/#primaryimage"},"datePublished":"2024-02-27T19:19:09+00:00","dateModified":"2024-02-27T19:19:09+00:00","author":{"@id":"https://marcius.pro/#/schema/person/06a29c6c112f692c476fb671fa556a4a"},"breadcrumb":{"@id":"https://marcius.pro/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh/#breadcrumb"},"inLanguage":"pt-BR","potentialAction":[{"@type":"ReadAction","target":["https://marcius.pro/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh/"]}]},{"@type":"BreadcrumbList","@id":"https://marcius.pro/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Início","item":"https://marcius.pro/"},{"@type":"ListItem","position":2,"name":"Integrando o AbuseIPDB ao Wazuh"}]},{"@type":"Person","@id":"https://marcius.pro/#/schema/person/06a29c6c112f692c476fb671fa556a4a","name":"marcius","image":{"@type":"ImageObject","@id":"https://marcius.pro/#personlogo","inLanguage":"pt-BR","url":"http://0.gravatar.com/avatar/c913a61ab6c4834155e669573c13b12c?s=96&d=mm&r=g","contentUrl":"http://0.gravatar.com/avatar/c913a61ab6c4834155e669573c13b12c?s=96&d=mm&r=g","caption":"marcius"},"sameAs":["http://localhost"],"url":"https://marcius.pro/index.php/author/marcius/"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel="alternate" type="application/rss+xml" title="Feed para Marcius Costa &raquo;" href="https://marcius.pro/index.php/feed/">
+<link rel="alternate" type="application/rss+xml" title="Feed de comentários para Marcius Costa &raquo;" href="https://marcius.pro/index.php/comments/feed/">
+<link rel="alternate" type="application/rss+xml" title="Feed de comentários para Marcius Costa &raquo; Integrando o AbuseIPDB ao Wazuh" href="https://marcius.pro/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh/feed/">
+<script>
+window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/14.0.0\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/14.0.0\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/marcius.pro\/wp-includes\/js\/wp-emoji-release.min.js?ver=6.4.3"}};
+/*! This file is auto-generated */
+!function(i,n){var o,s,e;function c(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function p(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data),r=(e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0),new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data));return t.every(function(e,t){return e===r[t]})}function u(e,t,n){switch(t){case"flag":return n(e,"🏳️‍⚧️","🏳️​⚧️")?!1:!n(e,"🇺🇳","🇺​🇳")&&!n(e,"🏴󠁧󠁢󠁥󠁮󠁧󠁿","🏴​󠁧​󠁢​󠁥​󠁮​󠁧​󠁿");case"emoji":return!n(e,"🫱🏻‍🫲🏿","🫱🏻​🫲🏿")}return!1}function f(e,t,n){var r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):i.createElement("canvas"),a=r.getContext("2d",{willReadFrequently:!0}),o=(a.textBaseline="top",a.font="600 32px Arial",{});return e.forEach(function(e){o[e]=t(a,e,n)}),o}function t(e){var t=i.createElement("script");t.src=e,t.defer=!0,i.head.appendChild(t)}"undefined"!=typeof Promise&&(o="wpEmojiSettingsSupports",s=["flag","emoji"],n.supports={everything:!0,everythingExceptFlag:!0},e=new Promise(function(e){i.addEventListener("DOMContentLoaded",e,{once:!0})}),new Promise(function(t){var n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),p.toString()].join(",")+"));",r=new Blob([e],{type:"text/javascript"}),a=new Worker(URL.createObjectURL(r),{name:"wpTestEmojiSupports"});return void(a.onmessage=function(e){c(n=e.data),a.terminate(),t(n)})}catch(e){}c(n=f(s,u,p))}t(n)}).then(function(e){for(var t in e)n.supports[t]=e[t],n.supports.everything=n.supports.everything&&n.supports[t],"flag"!==t&&(n.supports.everythingExceptFlag=n.supports.everythingExceptFlag&&n.supports[t]);n.supports.everythingExceptFlag=n.supports.everythingExceptFlag&&!n.supports.flag,n.DOMReady=!1,n.readyCallback=function(){n.DOMReady=!0}}).then(function(){return e}).then(function(){var e;n.supports.everything||(n.readyCallback(),(e=n.source||{}).concatemoji?t(e.concatemoji):e.wpemoji&&e.twemoji&&(t(e.twemoji),t(e.wpemoji)))}))}((window,document),window._wpemojiSettings);
+</script>
+<link rel="stylesheet" id="minnak-loading-style-css" href="https://marcius.pro/wp-content/themes/minnak/plugins/loading/loading.css?ver=2.1.9" media="all">
+<link rel="stylesheet" id="minnak-bootstrap-style-css" href="https://marcius.pro/wp-content/themes/minnak/plugins/bootstrap/bootstrap.min.css?ver=6.4.3" media="all">
+<link rel="stylesheet" id="minnak-style-css" href="https://marcius.pro/wp-content/themes/minnak/style.css?ver=2.1.9" media="all">
+<style id="wp-emoji-styles-inline-css">img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}</style>
+<link rel="stylesheet" id="wp-block-library-css" href="https://marcius.pro/wp-includes/css/dist/block-library/style.min.css?ver=6.4.3" media="all">
+<style id="classic-theme-styles-inline-css">/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}</style>
+<style id="global-styles-inline-css">body{--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgba(255, 255, 255, 1), 6px 6px rgba(0, 0, 0, 1);--wp--preset--shadow--crisp: 6px 6px 0px rgba(0, 0, 0, 1);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flow > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}body .is-layout-flow > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}body .is-layout-flow > .aligncenter{margin-left: auto !important;margin-right: auto !important;}body .is-layout-constrained > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}body .is-layout-constrained > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}body .is-layout-constrained > .aligncenter{margin-left: auto !important;margin-right: auto !important;}body .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)){max-width: var(--wp--style--global--content-size);margin-left: auto !important;margin-right: auto !important;}body .is-layout-constrained > .alignwide{max-width: var(--wp--style--global--wide-size);}body .is-layout-flex{display: flex;}body .is-layout-flex{flex-wrap: wrap;align-items: center;}body .is-layout-flex > *{margin: 0;}body .is-layout-grid{display: grid;}body .is-layout-grid > *{margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+.wp-block-navigation a:where(:not(.wp-element-button)){color: inherit;}
+:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}
+:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}
+.wp-block-pullquote{font-size: 1.5em;line-height: 1.6;}</style>
+<script src="https://marcius.pro/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js"></script>
+<script src="https://marcius.pro/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1" id="jquery-migrate-js"></script>
+<script src="https://marcius.pro/wp-content/themes/minnak/plugins/bootstrap/bootstrap.bundle.min.js?ver=6.4.3" id="minnak-bootstrap-js-js"></script>
+<script src="https://marcius.pro/wp-content/themes/minnak/plugins/muuri/muuri.min.js?ver=6.4.3" id="minnak-muuri-js-js"></script>
+<link rel="https://api.w.org/" href="https://marcius.pro/index.php/wp-json/">
+<link rel="alternate" type="application/json" href="https://marcius.pro/index.php/wp-json/wp/v2/posts/208">
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://marcius.pro/xmlrpc.php?rsd">
+<meta name="generator" content="WordPress 6.4.3">
+<link rel="shortlink" href="https://marcius.pro/?p=208">
+<link rel="alternate" type="application/json+oembed" href="https://marcius.pro/index.php/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fhttps%3A%2F%2Fmarcius.pro%2Findex.php%2F2024%2F02%2F27%2Fintegrando-o-abuseipdb-ao-wazuh%2F">
+<link rel="alternate" type="text/xml+oembed" href="https://marcius.pro/index.php/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fhttps%3A%2F%2Fmarcius.pro%2Findex.php%2F2024%2F02%2F27%2Fintegrando-o-abuseipdb-ao-wazuh%2F#038;format=xml">
+<link rel="pingback" href="https://marcius.pro/xmlrpc.php">
+<style id="custom-background-css">body.custom-background { background-color: #111111; }</style>
+	</head>
+
+<body class="post-template-default single single-post postid-208 single-format-standard custom-background wp-custom-logo dark-theme">
+<div id="page-overlay" class="loading">
+	<span aria-hidden="true" aria-label="Loading">
+		Loading...	</span>
+</div> 
+<div id="page" class="site d-flex">
+	<a class="skip-link screen-reader-text" href="#primary">Skip to content</a>
+	<header id="masthead" class="site-header">
+		<div class="site-branding">
+					<a href="https://marcius.pro/" class="custom-logo-link" rel="home"><img width="360" height="398" src="https://marcius.pro/wp-content/uploads/2022/03/foto-perfil3.png" class="custom-logo" alt="Marcius Costa" decoding="async" fetchpriority="high"></a>				<p class="site-title"><a href="https://marcius.pro/" rel="home">Marcius Costa</a></p>
+								<p class="site-description">Profissional em redes de computadores e segurança cibernética</p>
+					</div>
+	</header>
+	<button id="toggle-button" class="btn toggle-button">
+		<svg width="20" height="20" viewbox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path d="M12 10C12 11.1046 11.1046 12 10 12C8.89539 12 8 11.1046 8 10C8 8.89539 8.89539 8 10 8C11.1046 8 12 8.89539 12 10Z" fill="black"></path>
+			<path d="M12 4C12 5.10461 11.1046 6 10 6C8.89539 6 8 5.10461 8 4C8 2.89539 8.89539 2 10 2C11.1046 2 12 2.89539 12 4Z" fill="black"></path>
+			<path d="M12 16C12 17.1046 11.1046 18 10 18C8.89539 18 8 17.1046 8 16C8 14.8954 8.89539 14 10 14C11.1046 14 12 14.8954 12 16Z" fill="black"></path>
+		</svg>
+	</button>
+	<div id="left-sidebar" class="left-sidebar">
+		<div class="sidebar-content-area">
+			<div class="sidebar-menu-area">
+				<div class="sidebar-menu-icons">
+					<ul class="vertical-sidebar-menu list-unstyled" id="v-pills-tab">
+													<li class="vertical-menu-item active-menu">
+								<a class="nav-link main-menu-nav" id="v-pills-menu-tab" href="#main-menu-tab" onclick="return false;" role="tab" aria-selected="true">
+									<svg width="36" height="36" viewbox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M25.6962 14.5H10.3038C10.2232 14.5 10.146 14.4473 10.089 14.3536C10.032 14.2598 10 14.1326 10 14C10 13.8674 10.032 13.7402 10.089 13.6464C10.146 13.5527 10.2232 13.5 10.3038 13.5H25.6962C25.7768 13.5 25.854 13.5527 25.911 13.6464C25.968 13.7402 26 13.8674 26 14C26 14.1326 25.968 14.2598 25.911 14.3536C25.854 14.4473 25.7768 14.5 25.6962 14.5Z" fill="#B7BDC0"></path>
+										<path d="M25.6962 22.5H10.3038C10.2232 22.5 10.146 22.4473 10.089 22.3536C10.032 22.2598 10 22.1326 10 22C10 21.8674 10.032 21.7402 10.089 21.6464C10.146 21.5527 10.2232 21.5 10.3038 21.5H25.6962C25.7768 21.5 25.854 21.5527 25.911 21.6464C25.968 21.7402 26 21.8674 26 22C26 22.1326 25.968 22.2598 25.911 22.3536C25.854 22.4473 25.7768 22.5 25.6962 22.5Z" fill="#B7BDC0"></path>
+									</svg>
+								</a>
+								<div class="menu-content-area" id="main-menu-tab" role="tabpanel" aria-labelledby="v-pills-menu-tab">
+									<div class="menu-content main-menu-tab">
+										<div class="menu-scrollable">
+											<div class="menu-scrollable-content">
+												<nav id="site-navigation" class="main-navigation">
+													<div class="menu-categorias-container"><ul id="primary-menu" class="menu">
+<li id="menu-item-41" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-41"><a href="https://marcius.pro/">Inicio</a></li>
+<li id="menu-item-40" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-40"><a href="https://marcius.pro/index.php/sobre-mim/">Sobre mim</a></li>
+<li id="menu-item-36" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-36"><a href="https://marcius.pro/index.php/category/seguranca/">Segurança</a></li>
+<li id="menu-item-30" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-30"><a href="https://marcius.pro/index.php/category/linux/">Linux</a></li>
+<li id="menu-item-189" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-189"><a target="_blank" rel="noopener" href="https://cursowazuh.marcius.pro/">Curso Wazuh</a></li>
+<li id="menu-item-206" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-206"><a target="_blank" rel="noopener" href="https://www.youtube.com/channel/UC7oM-XvDyG-wpKhQgR8fh_w">Canal MarciusPro</a></li>
+</ul></div>												</nav>
+											</div>
+										</div>
+									</div>
+								</div>
+							</li>
+																									<li class="vertical-menu-item">
+						<!---		<a class="nav-link widget-nav" id="v-pills-widgets-tab" href="#widget-tab" onclick="return false;" role="tab" aria-controls="v-pills-widgets" aria-selected="false">
+									<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path fill-rule="evenodd" clip-rule="evenodd" d="M11 12V24H14V12H11ZM10.6818 11H14.3182C14.6947 11 15 11.3053 15 11.6818V24.3182C15 24.6947 14.6947 25 14.3182 25H10.6818C10.3053 25 10 24.6947 10 24.3182V11.6818C10 11.3053 10.3053 11 10.6818 11Z" fill="#B7BDC0"/>
+										<path fill-rule="evenodd" clip-rule="evenodd" d="M17 12V24H25V12H17ZM16.6818 11H25.3182C25.6947 11 26 11.3053 26 11.6818V24.3182C26 24.6947 25.6947 25 25.3182 25H16.6818C16.3053 25 16 24.6947 16 24.3182V11.6818C16 11.3053 16.3053 11 16.6818 11Z" fill="#B7BDC0"/>
+									</svg>
+								</a> ---> 
+								<div class="menu-content-area" id="widget-tab" role="tabpanel" aria-labelledby="v-pills-widgets-tab">
+									<div class="menu-content widget-tab">
+										<div class="menu-scrollable">
+											<div class="menu-scrollable-content">
+												
+<aside id="secondary" class="widget-area">
+	<section id="block-3" class="widget widget_block">
+<div class="wp-block-group is-layout-flow wp-block-group-is-layout-flow"><div class="wp-block-group__inner-container">
+<div class="wp-block-columns is-layout-flex wp-container-core-columns-layout-1 wp-block-columns-is-layout-flex">
+<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow"></div>
+</div>
+</div></div>
+</section><section id="block-4" class="widget widget_block">
+<div class="wp-block-group is-layout-flow wp-block-group-is-layout-flow"><div class="wp-block-group__inner-container"></div></div>
+</section><section id="block-5" class="widget widget_block">
+<div class="wp-block-group is-layout-flow wp-block-group-is-layout-flow"><div class="wp-block-group__inner-container"></div></div>
+</section></aside>
+												</div>
+										</div>
+									</div>
+								</div>
+							</li>
+											</ul>
+				</div>
+
+			</div>
+		</div>	
+		<div id="left-sidebar-footer" class="left-sidebar-footer">		
+			<div id="social" class="left-sidebar-social-links d-flex justify-content-center flex-wrap">				<div class="social-links">
+					<a href="https://www.linkedin.com/in/marcius-da-costa-silveira-ab355046/" class="linkedin-links" target="_blank" title="Linkedin" data-toggle="tooltip" data-placement="top">
+						<svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M11.9966 24C9.22798 23.9984 6.54504 23.04 4.40229 21.2871C2.25953 19.5342 0.788706 17.0945 0.238998 14.3815C-0.310711 11.6684 0.0944951 8.84877 1.38597 6.40023C2.67744 3.95169 4.77577 2.02481 7.32547 0.94602C10.258 -0.292643 13.5626 -0.315796 16.5123 0.881653C19.4619 2.0791 21.815 4.39907 23.0538 7.33118C24.2927 10.2633 24.3158 13.5674 23.1182 16.5165C21.9206 19.4657 19.6003 21.8184 16.6677 23.0571C15.19 23.6824 13.6012 24.0031 11.9966 24V24ZM14.1866 11.8931C14.8151 11.8931 15.5647 12.2135 15.5647 13.7398V18.1108H18.2842V13.4264C18.3499 12.4199 18.0301 11.4261 17.3897 10.6467C17.1015 10.3475 16.7532 10.1126 16.3677 9.95754C15.9823 9.80245 15.5683 9.73065 15.1532 9.74686C14.5743 9.73037 14.0044 9.89311 13.5216 10.2128C13.1924 10.4498 12.9138 10.7502 12.7021 11.0962V9.94083H9.98203C10.0175 10.6987 9.98203 18.0363 9.98203 18.1103H12.7021V13.5484C12.6902 13.3237 12.7206 13.0989 12.7916 12.8854C12.8953 12.6216 13.0636 12.388 13.2811 12.206C13.5368 11.9982 13.8576 11.8872 14.1871 11.8926L14.1866 11.8931ZM5.75743 9.94033V18.1108H8.4765V9.94033H5.75743ZM7.13496 6.00235C6.94066 5.98504 6.74487 6.00805 6.55988 6.06995C6.37489 6.13184 6.20468 6.23129 6.05994 6.36205C5.91519 6.49281 5.79903 6.65206 5.71873 6.82981C5.63844 7.00757 5.59574 7.2 5.59333 7.39503C5.59091 7.59006 5.62882 7.78348 5.70468 7.96317C5.78055 8.14287 5.89272 8.30495 6.03418 8.43925C6.17564 8.57356 6.34333 8.67719 6.52673 8.74366C6.71013 8.81012 6.90529 8.83798 7.09996 8.82548H7.11746C7.53193 8.84057 7.9358 8.69268 8.24249 8.41353C8.37582 8.28377 8.48127 8.12816 8.55237 7.95624C8.62347 7.78431 8.65873 7.59969 8.656 7.41367C8.65674 7.2187 8.61704 7.0257 8.5394 6.84685C8.46177 6.66801 8.34789 6.50719 8.20496 6.37457C8.06203 6.24195 7.89315 6.1404 7.70898 6.07634C7.52481 6.01227 7.32936 5.98708 7.13496 6.00235V6.00235Z" fill="white"></path>
+						</svg>
+					</a>
+				</div>
+								<div class="social-links">
+					<a href="mailto:contato@marcius.pro" class="e-mail-links" target="_blank" title="E-mail" data-toggle="tooltip" data-placement="top">
+					<svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path fill-rule="evenodd" clip-rule="evenodd" d="M4.40235 21.2871C6.54514 23.04 9.22812 23.9984 11.9968 24C13.6012 24.0031 15.1898 23.6824 16.6674 23.0571C19.6 21.8185 21.9204 19.4658 23.1181 16.5167C24.3158 13.5676 24.2927 10.2635 23.0539 7.33136C21.8151 4.39924 19.4621 2.07924 16.5124 0.88174C13.5628 -0.315762 10.2582 -0.292671 7.32558 0.94593C4.77584 2.02472 2.67748 3.95162 1.38599 6.40017C0.0944972 8.84872 -0.310714 11.6684 0.239002 14.3814C0.788719 17.0945 2.25956 19.5341 4.40235 21.2871ZM11.5395 11.7611C11.8282 11.9109 12.1718 11.9109 12.4605 11.7611L18.5 8.62761V7.83334C18.5 7.59896 18.4196 7.40148 18.2588 7.24089C18.098 7.0803 17.9076 7 17.6875 7H6.3125C6.09245 7 5.90202 7.0803 5.74121 7.24089C5.5804 7.40148 5.5 7.59896 5.5 7.83334V8.62761L11.5395 11.7611ZM12 13C11.7333 13 11.4706 12.9345 11.2351 12.8092L5.5 9.75782V16.1667C5.5 16.3924 5.5804 16.5877 5.74121 16.7526C5.90202 16.9175 6.09245 17 6.3125 17H17.6875C17.9076 17 18.098 16.9175 18.2588 16.7526C18.4196 16.5877 18.5 16.3924 18.5 16.1667V9.75782L12.7649 12.8092C12.5294 12.9345 12.2667 13 12 13Z" fill="white"></path>
+					</svg>
+					</a>
+				</div>
+				</div>					</div>
+	</div>
+	
+
+	<main id="primary" class="site-main d-flex flex-column justify-content-between">
+		<div class="grid" style="margin-top: 40px;">
+					<div class="content-wrapper">
+			<div class="article-wrapper">
+			<article id="post-208" class="post-208 post type-post status-publish format-standard has-post-thumbnail hentry category-seguranca">
+														<div class="img-frame">
+							
+			<div class="post-thumbnail">
+				<img width="1200" height="675" src="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-titulo-1.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" decoding="async" srcset="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-titulo-1.png 1200w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-titulo-1-300x169.png 300w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-titulo-1-1024x576.png 1024w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-titulo-1-768x432.png 768w" sizes="(max-width: 1200px) 100vw, 1200px">			</div>
+
+								</div>
+					
+								<div class="article-content">
+					<header class="entry-header">
+						<h1 class="entry-title">Integrando o AbuseIPDB ao Wazuh</h1>								<div class="entry-meta">
+									<span class="cat-links"><a href="https://marcius.pro/index.php/category/seguranca/" rel="category tag">Segurança</a></span>								</div>
+													</header>
+					<div class="entry-content">
+						
+<p>O cenário é o seguinte:</p>
+
+
+
+<ul>
+<li>Debian 12.4 com kernel 6.1.0-18-amd64 virtualizado em VirtualBox 6.1.50</li>
+
+
+
+<li>Wazuh versão 4.7.2 (Manager, Indexer e Dashboard no mesmo servidor)</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">..::| Principais características dessa integração</h2>
+
+
+
+<p>Essa integração é diferente da que está no blog do Wazuh (<a href="https://wazuh.com/blog/detecting-known-bad-actors-with-wazuh-and-abuseipdb/" target="_blank" rel="noreferrer noopener">link</a>).</p>
+
+
+
+<ul>
+<li>Evita realizar múltiplas consultas seguidas do mesmo IP em um curto intervalo de tempo, isso ajudará a prevenir que o limite diário de consultas seja atingido prematuramente.</li>
+
+
+
+<li>Faz cache local das consultas, salvando-as em um banco da dados SQLite 3.</li>
+
+
+
+<li>Informações dos IPs salvos em cache expiram após um tempo configurável, obrigando a uma nova consulta no API do AbuseIPDB após expirar.</li>
+
+
+
+<li>Tem gerenciador próprio de chaves de API, podendo usar mais de uma.</li>
+
+
+
+<li>Quando uma chave de API tem seu limite diário excedido, evita usá-la novamente e tentará outra, caso você tenha cadastrado mais de uma.</li>
+
+
+
+<li>Volta a usar uma chave de API, que excedeu o limite diário de uso, após a próxima meia-noite (UTC).</li>
+
+
+
+<li>Baixa uma blacklist do AbuseIPDB.</li>
+
+
+
+<li>Verifica na blacklist se já existe o IP a ser pesquisado antes de consultá-lo na API do AbuseIPDB (essa verificação na blacklist tem que ser ativada).</li>
+
+
+
+<li>No alerta do AbuseIPDB, várias informações do alerta original são exibidas para facilitar a análise.</li>
+
+
+
+<li>Procura por IPv4 ou IPv6 em vários campos possíveis, não apenas o &#8220;srcip&#8221;.</li>
+
+
+
+<li>Possibilidade de adicionar mais campos do alerta onde é possível ter um IP público.</li>
+
+
+
+<li>Não faz consultas de IPs que não sejam públicos.</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">..::| Pré-requisitos</h2>
+
+
+
+<ul>
+<li>Ter o Python 3 instalado. Normalmente ele vem com o Wazuh e fica em <em>/var/ossec/framework/python/bin/python3</em>. Se precisar alterar o caminho do executável &#8220;<em>python3</em>&#8220;, altere o valor da variável &#8220;<em>PYTHON_EXEC</em>&#8221; do arquivo &#8220;<em>custom-abuseipdb</em>&#8221; e o shebang do &#8220;<em>custom-abuseipdb.py</em>&#8220;.</li>
+
+
+
+<li>Pacotes do Python necessários: sys, json, time, os, fcntl, re, random, datetime, traceback, subprocess, requests, sqlite3 e ipaddress.</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">..::| Instalação</h2>
+
+
+
+<p>Faça o download do script principal de integração:</p>
+
+
+
+<pre class="wp-block-code"><code><code>wget LINK_AQUI -O /var/ossec/integrations/custom-abuseipdb.py</code></code></pre>
+
+
+
+<p>Agora do script de facilitação de uso:</p>
+
+
+
+<pre class="wp-block-code"><code><code>wget LNK_AQUI -O /var/ossec/integrations/custom-abuseipdb</code></code></pre>
+
+
+
+<p>Esse script só irá facilitar o uso do &#8220;<em>custom-abuseipdb.py</em>&#8221; na hora de administrar chaves de API e baixar blacklist, mais adiante.</p>
+
+
+
+<p>No Wazuh, para um script customizado de integração ser aceito pelo sistema, o seu nome de arquivo precisa começar com &#8220;<em>custom-</em>&#8221; e ele deve estar dentro do diretório <em>/var/ossec/integrations/</em>.</p>
+
+
+
+<p>Altere suas permissões com os seguintes comandos:</p>
+
+
+
+<pre class="wp-block-code"><code><code>sudo chmod 750 /var/ossec/integrations/custom-abuseipdb
+sudo chown root:wazuh /var/ossec/integrations/custom-abuseipdb
+sudo chmod 750 /var/ossec/integrations/custom-abuseipdb.py
+sudo chown root:wazuh /var/ossec/integrations/custom-abuseipdb.py</code></code></pre>
+
+
+
+<p>Para configurar a integração desse script Python no Wazuh, antes de tudo você precisará definir quais regras, ou grupo de regras, serão usadas para chamar essa integração.</p>
+
+
+
+<p>No exemplo que citarei abaixo, irei usar um grupo de regras específico para essa integração. Ou seja, sempre que uma regra estiver nesse grupo de regras, que chamarei de &#8220;<em>abuseipdb_integration</em>&#8220;, e ela for usada em algum alerta, o conteúdo completo desse alerta será enviado para o &#8220;<em>custom-abuseipdb.py</em>&#8221; processar. O resultado do processamento desse script será outro alerta, que veremos mais adiante.</p>
+
+
+
+<p>Abra o <em>/var/ossec/etc/ossec.conf</em> e inclua essa integração abaixo dentro de &#8220;<em>&lt;ossec_config> … &lt;/ossec_config></em>&#8220;:</p>
+
+
+
+<pre class="wp-block-code"><code><code>&lt;integration>
+    &lt;name>custom-abuseipdb.py&lt;/name>
+    &lt;group>abuseipdb_integration,&lt;/group>
+    &lt;alert_format>json&lt;/alert_format>
+&lt;/integration>
+
+&lt;localfile>
+    &lt;location>/var/ossec/logs/integrations.log&lt;/location>
+    &lt;log_format>syslog&lt;/log_format>
+&lt;/localfile></code></code></pre>
+
+
+
+<p>Note que nessa integração, diferente da que foi publicada no blog do Wazuh, não há os campos &#8220;<em>&lt;hook_url></em>&#8221; e &#8220;<em>&lt;api_key></em>&#8220;, pois a URL da API do AbuseIPDB e a(s) chave(s) de API que você irá usar não ficarão aqui, mas dentro do próprio script (no caso da URL da API) e no banco de dados de cache de informações dessa integração (no caso da(s) chave(s) de API), que veremos mais adiante em detalhes. Toda a administração de chave(s) de API será feita pelo script &#8220;<em>custom-abuseipdb.py</em>&#8220;.</p>
+
+
+
+<p>Você também poderá citar regras específicas para integração, ao invés do grupo de regras. Basta tirar o &#8220;<em>&lt;group>abuseipdb_integration,&lt;/group></em>&#8221; e colocar &#8220;<em>&lt;rule_id>ID_DA_REGRA&lt;/rule_id></em>&#8221; com as IDs separadas por vírgula. Ambos não funcionam juntos na mesma integração, a menos que um ID citado em &#8220;<em>&lt;rule_id></em>&#8221; faça parte de um grupo de regras que está citado em &#8220;<em>&lt;group></em>&#8221; também na mesma integração.</p>
+
+
+
+<p>O Wazuh irá monitorar o log <em>/var/ossec/logs/integrations.log</em>, que é o local onde ficam salvos os resultados da integração. Se quiser, você poderá alterar esse local, abrindo o &#8220;<em>custom-abuseipdb.py</em>&#8221; e informando o novo arquivo de log na variável &#8220;<em>log_file</em>&#8220;. Porém, lembre-se de alterar a &#8220;<em>&lt;location></em>&#8221; das configurações de integração no <em>ossec.conf</em> (que fizemos acima) para esse novo local.</p>
+
+
+
+<p>Antes de criarmos a primeira regra do novo grupo &#8220;<em>abuseipdb_integration</em>&#8220;, vamos adicionar a chave API do AbuseIPDB que temos.</p>
+
+
+
+<p>Caso você não tenha uma chave de API ainda, precisará criar uma agora. Primeiro, crie uma conta (caso já não tenha) no <a href="https://www.abuseipdb.com/pricing" target="_blank" rel="noreferrer noopener">https://www.abuseipdb.com/pricing</a> que é muito simples. Quando você já tiver a sua conta, acesse-a e vá no menu com o nome que você deu a essa conta, que fica no canto superior direito da tela, clique nele e depois em &#8220;<em>Account</em>&#8220;. Na página inicial que irá abrir, clique na aba &#8220;<em>API</em>&#8221; e depois em &#8220;<em>Create Key</em>&#8221; (caso você já não tenha uma chave API):</p>
+
+
+
+<figure class="wp-block-image size-large"><img decoding="async" width="1024" height="888" src="https://marcius.pro/wp-content/uploads/2024/02/abuseipdb-create-key-1-1024x888.png" alt="" class="wp-image-212" srcset="https://marcius.pro/wp-content/uploads/2024/02/abuseipdb-create-key-1-1024x888.png 1024w, https://marcius.pro/wp-content/uploads/2024/02/abuseipdb-create-key-1-300x260.png 300w, https://marcius.pro/wp-content/uploads/2024/02/abuseipdb-create-key-1-768x666.png 768w, https://marcius.pro/wp-content/uploads/2024/02/abuseipdb-create-key-1.png 1122w" sizes="(max-width: 1024px) 100vw, 1024px"></figure>
+
+
+
+<p>Dê um nome para a sua chave, depois clique em &#8220;<em>Create</em>&#8220;. Copie a chave que irá aparecer no campo &#8220;<em>Key</em>&#8221; e a salve em local seguro.</p>
+
+
+
+<p>Perceba que o limite de &#8220;<em>checks</em>&#8221; por dia é de 1000 na conta gratuíta. Se você tiver 2 ou mais contas no AbuseIPDB, por exemplo, poderá criar 2 ou mais chaves de API e, com isso, terá um limite diário de 2000 (ou mais) consultas a essa API. O script de integração fará a administração automaticamente dessas chaves. Ou seja, quando uma exceder o limite diário, ele marcará ela para não ser usada até a próxima meia-noite (UTC &#8211; o que dá 21:00 no horário de Brasília), passando a usar a outra chave de API disponível. Na próxima meia-noite (UTC) as contagens de uso dessas chaves serão zeradas pelo próprio AbuseIPDB. Não tenho informações sobre se há limites de consultas por um IP de origem, mas em meus testes eu consegui fazer 2 mil consultas com 2 chaves de API diferentes, usando um mesmo IP de origem, e não fui bloqueado e nem a minha conta foi invalidada de alguma forma.</p>
+
+
+
+<p>Adicione a chave de API criada ao banco de dados de cache local do script, com o seguinte comando:</p>
+
+
+
+<pre class="wp-block-code"><code><code>sudo /var/ossec/integrations/custom-abuseipdb apikey add COLE_SUA_CHAVE_AQUI</code></code></pre>
+
+
+
+<figure class="wp-block-image size-large"><img decoding="async" width="1024" height="126" src="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-apikey-add-1-1024x126.png" alt="" class="wp-image-237" srcset="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-apikey-add-1-1024x126.png 1024w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-apikey-add-1-300x37.png 300w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-apikey-add-1-768x94.png 768w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-apikey-add-1-1536x189.png 1536w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-apikey-add-1.png 1904w" sizes="(max-width: 1024px) 100vw, 1024px"></figure>
+
+
+
+<p>Para listar as chaves de API salvas no banco de dados de cache local, digite o comando:</p>
+
+
+
+<pre class="wp-block-code"><code><code>sudo /var/ossec/integrations/custom-abuseipdb apikey list</code></code></pre>
+
+
+
+<p><img loading="lazy" decoding="async" width="1904" height="394" class="wp-image-215" src="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-apikey-list.png" alt="" srcset="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-apikey-list.png 1904w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-apikey-list-300x62.png 300w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-apikey-list-1024x212.png 1024w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-apikey-list-768x159.png 768w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-apikey-list-1536x318.png 1536w" sizes="(max-width: 1904px) 100vw, 1904px"></p>
+
+
+
+<p>Perceba que na direita há o campo &#8220;<em>Usable after</em>&#8220;. Significa que essa chave de API estará apta para uso após esse dia e horário (com base no relógio desse servidor). Se a data estiver a frente do momento atual, significa que ela excedeu o limite diário de consultas na API, e poderá ser usada novamente somente após a próxima meia-noite do fuso horário UTC, o que será às 21:00 no fuso-horário de Brasília. No entanto, para evitar problemas de dessincronização do horário atual do servidor com o de Brasília, coloquei 2 minutos além da meia-noite (que, no horário de Brasília, é 21:02).</p>
+
+
+
+<p>Se a chave de API for considerada inválida pelo AbuseIPDB, o campo &#8220;<em>Usable after</em>&#8221; estará com o valor &#8220;<em>INVALID</em>&#8221; logo após o script de integração tentar usá-la. Em nenhum momento essa chave será usada novamente na integração.</p>
+
+
+
+<p>Para remover uma chave de API do banco de dados de cache local, use o comando (mas não a remova agora pois iremos usá-la nos testes mais adiante):</p>
+
+
+
+<pre class="wp-block-code"><code><code>sudo /var/ossec/integrations/custom-abuseipdb apikey remove CHAVE_API_A_SER_EXCLUÍDA</code></code></pre>
+
+
+
+<p>Agora vamos instalar os decoders que irão extrair as informações oriundas da API do AbuseIPDB, possibilitando criar regras com base nessas informações. Execute essa linha de comandos:</p>
+
+
+
+<pre class="wp-block-code"><code><code>sudo wget LINK_DECODERS_AQUI -O /var/ossec/etc/decoders/1000-abuseipdb-integration_decoders.xml &amp;&amp; sudo chmod 660 /var/ossec/etc/decoders/1000-abuseipdb-integration_decoders.xml &amp;&amp; sudo chown wazuh: /var/ossec/etc/decoders/1000-abuseipdb-integration_decoders.xml</code></code></pre>
+
+
+
+<p>Agora vamos criar algumas regras que irão gerar alertas com base nos resultados da integração com o AbuseIPDB. Para ficar organizado, vamos criar o arquivo <em>/var/ossec/etc/rules/1000-abuseipdb-integration_rules.xml</em> onde ficarão essas regras, com o seguinte conteúdo:</p>
+
+
+
+<pre class="wp-block-code"><code>&lt;group name="abuseipdb,"&gt;
+
+    &lt;rule id="110000" level="3"&gt;
+            &lt;decoded_as&gt;abuseipdb&lt;/decoded_as&gt;
+            &lt;description&gt;AbuseIPDB: Integration message.&lt;/description&gt;
+    &lt;/rule&gt;
+
+
+    &lt;rule id="110001" level="3"&gt;
+            &lt;if_sid&gt;110000&lt;/if_sid&gt;
+            &lt;field name="abuseipdb.ip.score"&gt;\d+&lt;/field&gt;
+            &lt;description&gt;AbuseIPDB: Informations about IP $(srcip).&lt;/description&gt;
+    &lt;/rule&gt;
+
+    &lt;!-- Caso o IP tenha um confidence score igual ou maior a 70 --&gt;
+    &lt;rule id="110002" level="12"&gt;
+            &lt;if_sid&gt;110001&lt;/if_sid&gt;
+            &lt;field name="abuseipdb.ip.score" type="pcre2"&gt;^((7|8|9)\d|100)&lt;/field&gt;
+            &lt;description&gt;AbuseIPDB: IP $(srcip) have $(abuseipdb.ip.score) confidence score.&lt;/description&gt;
+    &lt;/rule&gt;
+
+    &lt;rule id="110003" level="7"&gt;
+            &lt;if_sid&gt;110000&lt;/if_sid&gt;
+            &lt;field name="abuseipdb.error_message"&gt;\.+&lt;/field&gt;
+            &lt;description&gt;AbuseIPDB: Integration error message.&lt;/description&gt;
+    &lt;/rule&gt;
+
+    &lt;rule id="110004" level="7"&gt;
+            &lt;if_sid&gt;110003&lt;/if_sid&gt;
+            &lt;field name="abuseipdb.error_message"&gt;All API key\(s\) stored in local cache database has been exceeded daily limit or invalid&lt;/field&gt;
+            &lt;description&gt;AbuseIPDB: All saved API key(s) are invalid or have exceeded the daily limit.&lt;/description&gt;
+    &lt;/rule&gt;
+
+&lt;/group&gt;</code></pre>
+
+
+
+<p>Ajuste as permissões desse arquivo:</p>
+
+
+
+<pre class="wp-block-code"><code><code>sudo chmod 660 /var/ossec/etc/rules/1000-abuseipdb-integration_rules.xml &amp;&amp; sudo chown wazuh: /var/ossec/etc/rules/1000-abuseipdb-integration_rules.xml</code></code></pre>
+
+
+
+<p>Agora vamos criar algumas regras que irão chamar essa integração.</p>
+
+
+
+<p>Apesar do script conseguir identificar um IP público, e com isso ele evita fazer pesquisas na API do AbuseIPDB quando não é um IP público, é bom evitar que esse script de integração seja executado em situações que não há necessidade de fazer consulta de um IP através dessa integração. Vamos criar regras que filtrem os IPs, identificando apenas os públicos. Isso evitará consumo desnecessário de recursos de processamento do servidor.</p>
+
+
+
+<p>Vou usar o arquivo <em>/var/ossec/etc/rules/local_rules.xml</em> para criar algumas regras de exemplo. Logo abaixo da regra <em>100001</em>, insira:</p>
+
+
+
+<pre class="wp-block-code"><code>  &lt;var name="filter_non-public_ip">10\.\d+\.\d+\.\d+|192\.168\.|172.(1&#91;6-9]|2&#91;0-9]|3&#91;0-1])\.\d+\.\d+|127\.\d+\.\d+\.\d+|169.254.\d+\.\d+|244\.\d+\.\d+\.\d+|0{0,3}(|:){0,6}0{0,3}(::|:)0{0,3}1|fe8(0|):\S+|fc(00|0|):\S+|fd(00|0|):\S+&lt;/var>
+
+  &lt;rule id="100002" level="5">
+    &lt;if_sid>5760&lt;/if_sid>
+    &lt;match negate="yes" type="pcre2">(?i)Failed password for \S+ from $filter_non-public_ip port \d+&lt;/match>
+    &lt;description>sshd: Authentication failed from a public IP address $(srcip).&lt;/description>
+    &lt;group>authentication_failed,authentication_success,pci_dss_10.2.4,pci_dss_10.2.5,abuseipdb_integration,&lt;/group>
+  &lt;/rule>
+
+  &lt;rule id="100003" level="5">
+    &lt;if_sid>5715&lt;/if_sid>
+    &lt;match negate="yes" type="pcre2">(?i)Accepted password for \S+ from $filter_non-public_ip port \d+&lt;/match>
+    &lt;description>sshd: Authentication succeeded from a public IP address $(srcip).&lt;/description>
+    &lt;group>authentication_failed,authentication_success,pci_dss_10.2.4,pci_dss_10.2.5,abuseipdb_integration,&lt;/group>
+  &lt;/rule></code></pre>
+
+
+
+<p>Observe que as duas regras estão no grupo &#8220;<em>abuseipdb_integration</em>&#8220;. Então, quando usadas em um alerta, chamará a integração &#8220;<em>custom-abuseipdb.py</em>&#8220;, que procurará informações desse IP localmente no banco de dados de cache dessa integração e também na blacklist (se habilitada &#8211; veremos mais adiante como ela funcionará). Se as informações sobre o IP do alerta não forem encontradas localmente, ou se as suas informações em cache estiverem muito antigas (esse tempo de expiração de informação no cache é configurável), fará uma consulta na API do AbuseIPDB e o seu resultado ficará salvo no banco de dados de cache da integração para evitar consultas repetidas do mesmo IP logo após a primeira, economizando &#8220;<em>checks</em>&#8221; diários da API.</p>
+
+
+
+<p>Vamos carregar essas novas regras, decoders e ativar a integração reiniciando o Wazuh Manager.</p>
+
+
+
+<pre class="wp-block-code"><code>sudo /var/ossec/bin/wazuh-control restart</code></pre>
+
+
+
+<p><img loading="lazy" decoding="async" width="1007" height="939" class="wp-image-225" src="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-manager-restart.png" alt="" srcset="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-manager-restart.png 1007w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-manager-restart-300x280.png 300w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-manager-restart-768x716.png 768w" sizes="(max-width: 1007px) 100vw, 1007px"></p>
+
+
+
+<h2 class="wp-block-heading">..::| Primeiros testes</h2>
+
+
+
+<p>Vou criar um arquivo de log para inserir eventos de autenticação de SSH, porém usando IPs públicos, justamente para chamar a integração. </p>
+
+
+
+<p>Então vou criar o arquivo de log <em>/var/log/testes.log</em> primeiro e ajustarei suas permissões:</p>
+
+
+
+<pre class="wp-block-code"><code>sudo touch /var/log/testes.log &amp;&amp; sudo chmod 662 /var/log/testes.log</code></pre>
+
+
+
+<p>Agora vamos configurar o seu monitoramento no <em>/var/ossec/etc/ossec.conf </em> dentro da seção &#8220;<em>&lt;ossec_config> … &lt;/ossec_config></em>&#8221; dessa forma:</p>
+
+
+
+<pre class="wp-block-code"><code>    &lt;localfile>
+        &lt;location>/var/log/testes.log&lt;/location>
+        &lt;log_format>syslog&lt;/log_format>
+    &lt;/localfile></code></pre>
+
+
+
+<p>Para ativar o monitoramento desse log de testes, reiniciamos o Wazuh Manager:</p>
+
+
+
+<pre class="wp-block-code"><code>sudo /var/ossec/bin/wazuh-control restart</code></pre>
+
+
+
+<p>Agora vamos inserir um evento nesse <em>testes.log</em>, porém com IP público:</p>
+
+
+
+<pre class="wp-block-code"><code>sudo echo '2024-02-25T15:28:09.658271-03:00 srv-wazuh sshd&#91;64497]: Failed password for root from 159.223.85.11 port 57414 ssh2' >> /var/log/testes.log</code></pre>
+
+
+
+<p>Agora, se tudo deu certo, aparecerá esse evento no Wazuh Dashboard, e outro alerta do AbuseIPDB, fornecendo informações sobre o IP de origem desse evento teste.</p>
+
+
+
+<figure class="wp-block-image size-large"><img loading="lazy" decoding="async" width="1024" height="371" src="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-primeiro-teste-1024x371.png" alt="" class="wp-image-235" srcset="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-primeiro-teste-1024x371.png 1024w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-primeiro-teste-300x109.png 300w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-primeiro-teste-768x278.png 768w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-primeiro-teste-1536x556.png 1536w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-primeiro-teste.png 1906w" sizes="(max-width: 1024px) 100vw, 1024px"></figure>
+
+
+
+<p>Veja como ficaram as informações do alerta gerado pela integração:</p>
+
+
+
+<figure class="wp-block-image size-large"><img loading="lazy" decoding="async" width="1024" height="633" src="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte1-1024x633.png" alt="" class="wp-image-239" srcset="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte1-1024x633.png 1024w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte1-300x186.png 300w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte1-768x475.png 768w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte1.png 1421w" sizes="(max-width: 1024px) 100vw, 1024px"></figure>
+
+
+
+<figure class="wp-block-image size-large"><img loading="lazy" decoding="async" width="1024" height="674" src="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte2-1024x674.png" alt="" class="wp-image-240" srcset="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte2-1024x674.png 1024w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte2-300x197.png 300w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte2-768x505.png 768w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-alerta-parte2.png 1417w" sizes="(max-width: 1024px) 100vw, 1024px"></figure>
+
+
+
+<p>Observe o campo &#8220;<em>data.abuseipdb.alert.ID</em>&#8220;. Nele há o ID do alerta que chamou essa integração, que no caso foi a falha de autenticação SSH. Podemos buscar o alerta original filtrando por essa ID, dessa forma:</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" width="943" height="503" src="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-filtrar-alertaID.png" alt="" class="wp-image-242" srcset="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-filtrar-alertaID.png 943w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-filtrar-alertaID-300x160.png 300w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-filtrar-alertaID-768x410.png 768w" sizes="(max-width: 943px) 100vw, 943px"></figure>
+
+
+
+<figure class="wp-block-image size-large"><img loading="lazy" decoding="async" width="1024" height="503" src="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-resultado-filtrar-alertaID-1024x503.png" alt="" class="wp-image-243" srcset="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-resultado-filtrar-alertaID-1024x503.png 1024w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-resultado-filtrar-alertaID-300x147.png 300w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-resultado-filtrar-alertaID-768x377.png 768w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-resultado-filtrar-alertaID-1536x754.png 1536w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-resultado-filtrar-alertaID.png 1695w" sizes="(max-width: 1024px) 100vw, 1024px"></figure>
+
+
+
+<h2 class="wp-block-heading">..::| Usando a blacklist</h2>
+
+
+
+<p>É possível usar esse script de integração para baixar e usar uma blacklist do AbuseIPDB. Na conta gratuíta, essa blacklist vem limitada a 10 mil IPs e pode ser baixada até 5 vezes no mesmo dia.</p>
+
+
+
+<p>Por padrão, o uso da blacklist vem desabilitado no script de integração. Para habilitar, edite o arquivo &#8220;<em>custom-abuseipdb.py</em>&#8221; e altere o valor da variável &#8220;<em>blacklist_enabled</em>&#8221; para &#8220;<em>True</em>&#8220;.  </p>
+
+
+
+<figure class="wp-block-image size-large"><img loading="lazy" decoding="async" width="1024" height="396" src="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-blacklist-enabled-1024x396.png" alt="" class="wp-image-246" srcset="https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-blacklist-enabled-1024x396.png 1024w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-blacklist-enabled-300x116.png 300w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-blacklist-enabled-768x297.png 768w, https://marcius.pro/wp-content/uploads/2024/02/custom-abuseipdb-blacklist-enabled.png 1382w" sizes="(max-width: 1024px) 100vw, 1024px"></figure>
+
+
+
+<p>Ao ativar o uso de blacklist na integração, os IPs a serem consultados serão pesquisados primeiro no banco de dados de cache local e, se não encontrado, a pesquisa será feita na blacklist, que será baixada automaticamente caso não exista localmente.</p>
+
+
+
+<p>Se quiser baixá-la manualmente antes, execute esse comando:</p>
+
+
+
+<pre class="wp-block-code"><code>sudo /var/ossec/integrations/custom-abuseipdb blacklist</code></pre>
+
+
+
+<p>Somente se o IP a ser consultado não estiver no banco de dados de cache local e na blacklist é que ele será consultado diretamente na API do AbuseIPDB.</p>
+
+
+
+<p>No entanto, as informações sobre um IP na blacklist são limitadas apenas aos campos &#8220;<em>IP</em>&#8220;, &#8220;<em>Country</em>&#8220;, &#8220;<em>Score</em>&#8221; e &#8220;<em>Last Reported</em>&#8220;. Como são menos informações do que as que são provenientes da API, por esse motivo o script irá procurar primeiro no banco de dados de cache local.</p>
+
+
+
+<p>Recomendo colocar para baixá-la automaticamente 1 vez ao dia. Por exemplo, você pode colocar o script para baixar a blacklist todos os dias a meia-noite, inserindo a seguinte linha no seu crontab (coloque no usuário root por causa das permissões de execução):</p>
+
+
+
+<pre class="wp-block-code"><code>0   0   *   *   *   /var/ossec/integrations/custom-abuseipdb blacklist</code></pre>
+
+
+
+<h2 class="wp-block-heading">..::| Customizações</h2>
+
+
+
+<p>Você poderá alterar várias coisas nesse script. Ao abrir o &#8220;<em>custom-abuseipdb.py</em>&#8221; você observará a seção &#8220;<em>Global variables definitions</em>&#8220;, onde é possível alterar várias coisas, entre elas:</p>
+
+
+
+<ul>
+<li>&#8220;<em><strong><font color="white">ip_fields</font></strong></em>&#8221; = É uma lista com os nomes dos campos, do alerta que o Wazuh envia para a integração, onde geralmente estão os IPs. Você pode adicionar mais campos apenas alimentando a lista, colocando entre aspas simples separando por vírgula. Os campos devem estar dentro da chave &#8220;<em>data</em>&#8221; do JSON do alerta, ou em alguma das suas possíveis subchaves. O script pegará todas as informações de todos os campos dessa lista que ele encontrar no alerta, não apenas o primeiro que encontrar.</li>
+
+
+
+<li>&#8220;<em><strong><font color="white">abuseipdb_local_cache_file</font></strong></em>&#8221; = Local do arquivo com o banco de dados de cache das informações obtidas de consultas a API do AbuseIPDB. Nesse arquivo também há as chaves de API salvas para uso do próprio script.</li>
+
+
+
+<li>&#8220;<em><strong><font color="white">log_file</font></strong></em>&#8221; = Local onde ficarão salvos os eventos provenientes da integração. Aqui ficarão todas as informações obtidas a respeito do IP pesquisado, e também informações sobre o alerta original, ou seja, o que chamou a integração inicialmente. Sobre o alerta original, foram excluídos os campos &#8220;<em>full_log</em>&#8221; e &#8220;<em>previous_output</em>&#8221; para evitar loop de decodificação pelo Wazuh. Aqui também ficarão outras mensagens a respeito da execução do script, como por exemplo algum erro ou informação importante.</li>
+
+
+
+<li>&#8220;<em><strong><font color="white">blacklist_enabled</font></strong></em>&#8221; = Se estiver como &#8220;<em>True</em>&#8220;, verificará na blacklist se a informação a respeito do IP pesquisado é encontrado. Se ainda não foi feito o download da blacklist, o script fará automaticamente no primeiro uso e somente dessa vez. Por isso é importante atualizar diariamente a blacklist, colocando na cron (como mencionei anteriormente). A intenção é evitar fazer pesquisas na API. Se estiver como &#8220;<em>False</em>&#8220;, a blacklist não será usada pela integração e nem será feito o download automaticamente no primeiro uso.</li>
+
+
+
+<li>&#8220;<em><strong><font color="white">blacklist_file</font></strong></em>&#8221; = Local onde ficará salva a blacklist ao ser baixada pelo script.</li>
+
+
+
+<li>&#8220;<em><strong><font color="white">confidenceMinimum</font></strong></em>&#8221; = É o valor mínimo de scores dos IPs que farão parte da blacklist. Em contas gratuítas, é recomendado não alterar isso.</li>
+
+
+
+<li>&#8220;<em><strong><font color="white">ip_expiration_time</font></strong></em>&#8221; = Tempo de armazenamento das informações de um IP no banco de dados de cache local. Esse valor deverá ser configurado em segundos. O valor padrão é de 86400, ou seja, 24 horas. Nesse caso, se um IP tiver sido inserido no banco de dados de cache local há mais de 24 horas, o script atualizará essa informação nesse banco de dados fazendo uma consulta a API do AbuseIPDB assim que esse IP aparecer em algum alerta que chamará a integração novamente.</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">..::| Conclusões</h2>
+
+
+
+<p>Com essa integração, informações muito importantes a respeito de um IP ficarão fáceis de serem consultadas. Não haverá a necessidade de pesquisar cada IP manualmente quando ele for um suspeito.</p>
+
+
+
+<p>Além disso, fazer regras com base no score do IP ficou muito fácil. Como mostrei no exemplo da regra 110002, onde um alerta será gerado com level 12 quando um IP consultado no AbuseIPDB tiver um score igual ou maior que 70. Você também poderá criar um active-response para bloquear um IP com base nesse score. Podendo, por exemplo, criar uma regra onde, se o IP consultado tiver 100 de confidence score, ativará o active-response para bloqueá-lo em seus firewalls de borda de rede. Nesse exemplo, seria praticamente impossível um IP com 100 de score não ser malicioso, então as chances de um bloqueio com base num alerta falso-positivo serão praticamente nulas.</p>
+
+
+
+<p>Agora você também poderá fazer regras com base em outras informações. Por exemplo, quando o IP for de um determinado país, você poderá criar uma regra com base nessa informação, assim como em outras informações como de qual ISP é esse IP, quantos registros de atos suspeitos ele tem, se ele pertence a rede TOR, se está em uma whitelist (para evitar falsos-positivos), etc.</p>
+
+
+
+<p>Com certeza as informações passadas por essa integração ajudará bastante na tomada de decisões e na estratégia de segurança da sua empresa.</p>
+
+
+
+<blockquote class="wp-block-quote">
+<p>Fontes:<br><br><a href="https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/integration.html" target="_blank" rel="noreferrer noopener">https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/integration.html</a><br><a href="https://wazuh.com/blog/detecting-known-bad-actors-with-wazuh-and-abuseipdb/" target="_blank" rel="noreferrer noopener">https://wazuh.com/blog/detecting-known-bad-actors-with-wazuh-and-abuseipdb/</a></p>
+</blockquote>
+					</div>
+											<footer class="entry-footer d-flex align-self-center justify-content-between">
+													</footer>
+					
+												
+					
+				</div>
+			</article><!-- #post-208 -->
+		</div>
+	</div>
+		</div>
+			
+	<nav class="navigation post-navigation" aria-label="Posts">
+		<h2 class="screen-reader-text">Navegação de Post</h2>
+		<div class="nav-links"><div class="nav-previous"><a href="https://marcius.pro/index.php/2022/03/31/port-knocking-no-pfsense-usando-wazuh/" rel="prev"><span class="nav-subtitle"> &xlarr; Previous</span> <span class="nav-title">Port Knocking no pfSense usando Wazuh</span></a></div></div>
+	</nav>
+<div id="comments" class="comments-area">
+
+		<div id="respond" class="comment-respond">
+		<h3 id="reply-title" class="comment-reply-title">Deixe um comentário <small><a rel="nofollow" id="cancel-comment-reply-link" href="https://marcius.pro/index.php/2024/02/27/integrando-o-abuseipdb-ao-wazuh/#respond" style="display:none;">Cancelar resposta</a></small>
+</h3>
+<form action="http://marcius.pro/wp-comments-post.php" method="post" id="commentform" class="comment-form" novalidate>
+<p class="comment-notes"><span id="email-notes">O seu endereço de e-mail não será publicado.</span> <span class="required-field-message">Campos obrigatórios são marcados com <span class="required">*</span></span></p>
+<p class="comment-form-comment"><label for="comment">Comentário <span class="required">*</span></label> <textarea id="comment" name="comment" cols="45" rows="8" maxlength="65525" required></textarea></p>
+<p class="comment-form-author"><label for="author">Nome <span class="required">*</span></label> <input id="author" name="author" type="text" value="" size="30" maxlength="245" autocomplete="name" required></p>
+<p class="comment-form-email"><label for="email">E-mail <span class="required">*</span></label> <input id="email" name="email" type="email" value="" size="30" maxlength="100" aria-describedby="email-notes" autocomplete="email" required></p>
+<p class="comment-form-url"><label for="url">Site</label> <input id="url" name="url" type="url" value="" size="30" maxlength="200" autocomplete="url"></p>
+<p class="comment-form-cookies-consent"><input id="wp-comment-cookies-consent" name="wp-comment-cookies-consent" type="checkbox" value="yes"> <label for="wp-comment-cookies-consent">Salvar meus dados neste navegador para a próxima vez que eu comentar.</label></p>
+<p class="form-submit"><input name="submit" type="submit" id="submit" class="submit" value="Publicar comentário"> <input type="hidden" name="comment_post_ID" value="208" id="comment_post_ID">
+<input type="hidden" name="comment_parent" id="comment_parent" value="0">
+</p>
+</form>	</div>
+<!-- #respond -->
+	
+</div>
+		<footer id="colophon" class="site-footer">
+		<div id="site-info" class="site-info">
+			 Esse site não coleta nenhum tipo de informação de seus visitantes, pois ele é estático e hospedado no GitHub!					</div>
+		</footer>
+	</main>
+</div>
+
+<style id="core-block-supports-inline-css">.wp-container-core-columns-layout-1.wp-container-core-columns-layout-1{flex-wrap:nowrap;}</style>
+<script src="https://marcius.pro/wp-content/themes/minnak/js/navigation.js?ver=2.1.9" id="minnak-navigation-js"></script>
+<script src="https://marcius.pro/wp-content/themes/minnak/js/main.js?ver=2.1.9" id="minnak-main-js-js"></script>
+<script src="https://marcius.pro/wp-content/themes/minnak/plugins/loading/loading.js?ver=2.1.9" id="minnak-loading-js"></script>
+<noscript><style>#page-overlay{display: none!important;}</style></noscript>
+</body>
+</html>
