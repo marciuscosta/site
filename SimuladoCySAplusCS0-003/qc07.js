@@ -1019,10 +1019,10 @@ const Qs = [
       "A) Injeção de SQL",
       "B) Injeção de malware",
       "C) Injeção de LDAP",
-      "D) Scripting entre sites"
+      "D) Cross-site scripting"
     ],
     "ans": 3,
-    "exp": "Em um ataque de scripting entre sites (XSS), um invasor insere em um site comandos de script que serão posteriormente executados por um visitante desavisado ao acessar o site. A ideia é enganar um usuário que visita um site confiável, levando-o a executar código malicioso colocado ali por um terceiro não confiável."
+    "exp": "Em um ataque de Cross-site scripting (XSS), um invasor insere em um site comandos de script que serão posteriormente executados por um visitante desavisado ao acessar o site. A ideia é enganar um usuário que visita um site confiável, levando-o a executar código malicioso colocado ali por um terceiro não confiável."
   },
   {
     "t": "Alan está analisando logs de um servidor web após um ataque e encontra muitos registros que contêm caracteres de ponto e vírgula e apóstrofo em consultas de usuários finais. De que tipo de ataque ele deve suspeitar?",
