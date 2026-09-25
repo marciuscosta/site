@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Simulado CySA+</title>
+<style>
+:root{
+  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --bg:#ffffff;--bg2:#f5f4f0;--text:#1a1a18;--text2:#6b6862;--line:#e3e1db;--line2:#cdc9c1;
+  --sel:#185FA5;--sel-bg:#E8F0FA;--sel-text:#0E3A66;
+  --flag:#BA7517;--flag-bg:#FAF0DC;--flag-text:#5E3B08;
+  --ok:#0F6E56;--ok-bg:#E1F5EE;--ok-text:#085041;--ok-bar:#1D9E75;
+  --bad:#993C1D;--bad-bg:#FAECE7;--bad-text:#4A1B0C;--bad-bar:#D85A30;
+  --r-md:8px;--r-lg:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#1f1e1c;--bg2:#2a2926;--text:#f0efed;--text2:#a8a49c;--line:#3a3935;--line2:#4a4843;
+    --sel:#6FA8E0;--sel-bg:#1B2B3E;--sel-text:#D3E4F7;
+    --flag:#E0A640;--flag-bg:#3A2E14;--flag-text:#F3D9A4;
+    --ok:#4CC29C;--ok-bg:#15352C;--ok-text:#BDEBD9;--ok-bar:#2DB386;
+    --bad:#E68A66;--bad-bg:#3D2219;--bad-text:#F5C9B7;--bad-bar:#D85A30;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+.page{max-width:760px;margin:0 auto;padding:2rem 1.25rem 3rem}
+.page.has-bar{padding-top:0;padding-bottom:7rem}
+h1{font-size:22px;font-weight:600;line-height:1.3}
+.sub{font-size:14px;color:var(--text2);margin:.35rem 0 1.75rem;max-width:62ch}
+.card{background:var(--bg);border:0.5px solid var(--line);border-radius:var(--r-lg);padding:1.25rem 1.5rem;margin-bottom:1rem}
+.card h2{font-size:15px;font-weight:600;margin-bottom:.75rem}
+.muted{color:var(--text2)}
+.small{font-size:13px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{padding:10px 20px;border-radius:var(--r-md);border:0.5px solid var(--line2);background:var(--bg);font-size:14px;font-weight:500}
+.btn:hover{background:var(--bg2)}
+.btn.primary{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn.primary:hover{background:var(--text);opacity:.88}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Início */
+.banks{display:flex;flex-direction:column}
+.bank{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:start;padding:9px 2px;border-bottom:0.5px solid var(--line);font-size:14px}
+.bank:last-child{border-bottom:0}
+.bank .ctitle{display:block;color:var(--text2);font-size:13px;line-height:1.4;margin-top:1px}
+.bank .count{color:var(--text2);font-size:13px;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;padding-top:1px}
+.bank.missing{color:var(--text2)}
+.bank input{width:16px;height:16px;margin-top:3px;accent-color:var(--sel)}
+.total{margin-top:.75rem;font-size:14px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.field label{display:block;font-size:13px;color:var(--text2);margin-bottom:4px}
+.field input{width:100%;padding:8px 10px;border:0.5px solid var(--line2);border-radius:var(--r-md);background:var(--bg);font-size:15px;font-variant-numeric:tabular-nums}
+.hint{font-size:12px;color:var(--text2);margin-top:4px}
+fieldset{border:0;margin-top:1.1rem}
+legend{font-size:13px;color:var(--text2);margin-bottom:4px}
+.radio{display:flex;gap:10px;align-items:flex-start;padding:5px 0;font-size:14px}
+.radio input{margin-top:4px;accent-color:var(--sel)}
+.resume{border-color:var(--sel)}
+.row.start{margin-top:1.3rem}
+.card h3{font-size:14px;font-weight:600;margin-top:.25rem}
+.prazo{background:var(--flag-bg);color:var(--flag-text);border-radius:var(--r-md);padding:14px 16px;margin-bottom:1.1rem;font-size:14px;line-height:1.55}
+.prazo-t{font-weight:600;margin-bottom:10px}
+.datas{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.datas b{display:block;font-size:17px;font-weight:600;line-height:1.3}
+.datas span{font-size:13px}
+.specs{margin-bottom:1.2rem}
+.specs div{display:grid;grid-template-columns:170px 1fr;gap:12px;padding:8px 0;border-bottom:0.5px solid var(--line);font-size:14px}
+.specs div:last-child{border-bottom:0}
+.specs dt{color:var(--text2)}
+.specs dd{margin:0}
+.doms{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:.75rem}
+.dom{border:0.5px solid var(--line);border-radius:var(--r-md);padding:10px 12px}
+.dom-head{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:600;margin-bottom:6px}
+.dom-head .peso{color:var(--text2);font-weight:500;font-variant-numeric:tabular-nums}
+.dom ul{list-style:none}
+.dom li{display:grid;grid-template-columns:82px 1fr;gap:6px;font-size:13px;line-height:1.45;padding:3px 0}
+.cnum{color:var(--text2)}
+.fonte{margin-top:1rem}
+.fonte a{color:var(--sel)}
+
+/* Prova */
+.examhead{position:sticky;top:0;z-index:5;background:var(--bg);padding:1rem 0 .7rem;margin-bottom:1.1rem;border-bottom:0.5px solid var(--line)}
+.examhead .row{justify-content:space-between;gap:12px}
+.qpos{font-size:14px}
+.qpos strong{font-weight:600}
+.answered{font-size:13px;color:var(--text2)}
+.timer{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.timer.warn{color:var(--flag)}
+.timer.danger{color:var(--bad)}
+.progress{height:4px;background:var(--bg2);border-radius:4px;overflow:hidden;margin-top:.65rem}
+.progress div{height:100%;background:var(--ok-bar);transition:width .3s}
+.qhead{display:flex;justify-content:flex-end;margin-bottom:.4rem}
+.q-text{font-size:15px;line-height:1.7;margin-bottom:1.25rem}
+.q-text:focus{outline:none}
+.options{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:flex-start;gap:10px;width:100%;padding:10px 14px;border:0.5px solid var(--line);border-radius:var(--r-md);background:var(--bg);text-align:left;font-size:14px;line-height:1.6;transition:background .15s,border-color .15s}
+.opt:hover{background:var(--bg2);border-color:var(--line2)}
+.opt .letter{font-weight:500;min-width:20px;color:var(--text2)}
+.opt[aria-pressed="true"]{border-color:var(--sel);box-shadow:inset 0 0 0 0.5px var(--sel);background:var(--sel-bg);color:var(--sel-text)}
+.opt[aria-pressed="true"] .letter{color:var(--sel)}
+.flagbtn{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;border:0.5px solid var(--line2);background:var(--bg);font-size:13px;color:var(--text2)}
+.flagbtn svg{width:12px;height:12px;flex:none}
+.flagbtn[aria-pressed="true"]{background:var(--flag-bg);border-color:var(--flag);color:var(--flag-text)}
+.keys{font-size:12px;color:var(--text2);margin-top:.35rem}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:0.5px solid var(--line)}
+.bar-in{max-width:760px;margin:0 auto;padding:.75rem 1.25rem calc(.75rem + env(safe-area-inset-bottom,0px));display:flex;gap:8px;justify-content:space-between;align-items:center}
+.bar-in .mid{flex:1;display:flex;justify-content:center}
+
+/* Revisão */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:1rem 0}
+.stats.three{grid-template-columns:repeat(3,1fr);margin-top:0}
+.stat{background:var(--bg2);border-radius:var(--r-md);padding:.8rem .5rem;text-align:center}
+.stat b{display:block;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{font-size:12px;color:var(--text2)}
+.seg{display:inline-flex;border:0.5px solid var(--line2);border-radius:var(--r-md);overflow:hidden;margin-bottom:1rem;flex-wrap:wrap}
+.seg button{padding:6px 12px;border:0;background:var(--bg);font-size:13px;color:var(--text2)}
+.seg button+button{border-left:0.5px solid var(--line2)}
+.seg button[aria-pressed="true"]{background:var(--bg2);color:var(--text);font-weight:500}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:6px}
+.cell{position:relative;height:42px;border-radius:6px;border:1px dashed var(--line2);background:var(--bg);font-size:13px;font-variant-numeric:tabular-nums;color:var(--text2)}
+.cell:hover{border-color:var(--text2)}
+.cell.done{border:0.5px solid var(--sel);background:var(--sel-bg);color:var(--sel-text)}
+.cell.flagged::after{content:"";position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--flag)}
+.cell.current{box-shadow:0 0 0 2px var(--text)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin-top:1rem}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px}
+
+/* Resultado */
+.banner{padding:10px 14px;border-radius:var(--r-md);background:var(--flag-bg);color:var(--flag-text);font-size:14px;margin-bottom:1rem}
+.score{font-size:44px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.brow{display:grid;grid-template-columns:minmax(120px,190px) 1fr 96px;gap:12px;align-items:center;font-size:14px;padding:5px 0}
+.track{height:8px;background:var(--bg2);border-radius:8px;overflow:hidden}
+.fill{height:100%;border-radius:8px}
+.brow .num{font-size:13px;color:var(--text2);text-align:right;font-variant-numeric:tabular-nums}
+.rev{border-top:0.5px solid var(--line);padding:1.1rem 0}
+.rev:first-child{border-top:0;padding-top:0}
+.rev-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:.5rem;font-size:12px;color:var(--text2)}
+.rev .q-text{margin-bottom:.6rem}
+.pill{font-size:12px;padding:2px 10px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok-text)}
+.pill.bad{background:var(--bad-bg);color:var(--bad-text)}
+.pill.blank{background:var(--bg2);color:var(--text2)}
+.ropt{display:flex;gap:10px;padding:8px 12px;border:0.5px solid var(--line);border-radius:var(--r-md);font-size:14px;line-height:1.55;margin-top:6px}
+.ropt .letter{font-weight:500;min-width:20px;color:var(--text2)}
+.ropt.right{border-color:var(--ok);background:var(--ok-bg);color:var(--ok-text)}
+.ropt.right .letter{color:var(--ok)}
+.ropt.wrong{border-color:var(--bad);background:var(--bad-bg);color:var(--bad-text)}
+.ropt.wrong .letter{color:var(--bad)}
+.ropt .tag{margin-left:auto;padding-left:10px;font-size:12px;white-space:nowrap}
+.exp{margin-top:.75rem;padding:12px 14px;border-radius:var(--r-md);font-size:14px;line-height:1.7;background:var(--bg2);color:var(--text2)}
+.exp strong{color:var(--text);font-weight:500}
+
+/* Diálogo e aviso */
+dialog{margin:auto;border:0.5px solid var(--line2);border-radius:var(--r-lg);padding:1.4rem 1.5rem;max-width:420px;width:calc(100% - 2rem);background:var(--bg);color:var(--text)}
+dialog::backdrop{background:rgba(20,20,18,.45)}
+dialog h3{font-size:16px;font-weight:600;margin-bottom:.5rem}
+dialog p{font-size:14px;color:var(--text2);margin-bottom:1.2rem}
+.dlg-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:20;background:var(--text);color:var(--bg);padding:9px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s}
+.toast.show{opacity:1}
+
+@media (max-width:560px){
+  .fields{grid-template-columns:1fr}
+  .datas,.doms{grid-template-columns:1fr}
+  .specs div{grid-template-columns:1fr;gap:2px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .card{padding:1.1rem 1.1rem}
+  .brow{grid-template-columns:1fr 84px}
+  .brow .track{grid-column:1 / -1;grid-row:2}
+  .answered{display:none}
+  .btn{padding:10px 14px}
+}
+@media (hover: none){.keys{display:none}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<dialog id="dlg" aria-labelledby="dlg-t">
+  <h3 id="dlg-t"></h3>
+  <p id="dlg-p"></p>
+  <div class="dlg-actions">
+    <button class="btn" id="dlg-cancel">Continuar respondendo</button>
+    <button class="btn primary" id="dlg-ok">Confirmar</button>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= Configuração ================= */
+const CONFIG = {
+  capitulos: [1,2,3,4,5,6,7,8,9,10,11,12,13],  // procura qc01.js a qc13.js (ou qc1.js a qc9.js)
+  questoes: 85,
+  minutos: 165,
+  titulos: {
+    1: 'O Analista de Cibersegurança Hoje',
+    2: 'Arquitetura de Sistemas e Redes',
+    3: 'Atividade Maliciosa',
+    4: 'Inteligência de Ameaças',
+    5: 'Reconhecimento e Coleta de Inteligência',
+    6: 'Projetando um Programa de Gestão de Vulnerabilidades',
+    7: 'Analisando Varreduras de Vulnerabilidades',
+    8: 'Respondendo a Vulnerabilidades',
+    9: 'Construindo um Programa de Resposta a Incidentes',
+    10: 'Detecção e Análise de Incidentes',
+    11: 'Contenção, Erradicação e Recuperação',
+    12: 'Relatórios e Comunicação',
+    13: 'Análise Forense e Técnicas de Resposta a Incidentes'
+  },
+  // Domínio do exame que cada capítulo mais cobre (usado no sorteio proporcional e nas informações do exame).
+  dominioDoCapitulo: {1:1,2:1,3:1,4:1,5:1,6:2,7:2,8:2,9:3,10:3,11:3,12:4,13:4},
+  nomesDominios: {1:'Operações de segurança',2:'Gestão de vulnerabilidades',3:'Resposta e gestão de incidentes',4:'Relatórios e comunicação'},
+  pesos: { cs0003: {1:33,2:30,3:20,4:17} },
+  avisosMinutos: [30,15,5]
+};
+const LETRAS = 'ABCDEF';
+const CHAVE_ANDAMENTO = 'simuladoCySA.v2.andamento';
+const CHAVE_PREFS = 'simuladoCySA.v2.preferencias';
+
+/* ================= Utilidades ================= */
+const $ = (s) => document.querySelector(s);
+const app = () => document.getElementById('app');
+function ler(k){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+function gravar(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function apagar(k){ try{ localStorage.removeItem(k); }catch(e){} }
+function sortearIndice(n){
+  if (window.crypto && crypto.getRandomValues){ const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; }
+  return Math.floor(Math.random() * n);
+}
+function embaralhar(lista){
+  const a = lista.slice();
+  for (let i = a.length - 1; i > 0; i--){ const j = sortearIndice(i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+function relogio(ms){
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  return h + ':' + String(m).padStart(2, '0') + ':' + String(x).padStart(2, '0');
+}
+function duracao(ms){
+  if (ms < 60000) return 'menos de 1 min';
+  const min = Math.round(ms / 60000);
+  const h = Math.floor(min / 60), m = min % 60;
+  return h ? (h + ' h ' + String(m).padStart(2, '0') + ' min') : (m + ' min');
+}
+function semPrefixo(o){ return String(o).replace(/^\s*[A-Fa-f]\)\s*/, ''); }
+function plural(n, um, varios){ return n + ' ' + (n === 1 ? um : varios); }
+let avisoTimer = null;
+function aviso(txt){
+  const t = $('#toast'); t.textContent = txt; t.classList.add('show');
+  clearTimeout(avisoTimer); avisoTimer = setTimeout(() => t.classList.remove('show'), 4500);
+}
+function abrirDialogo(titulo, texto, rotulo, acao){
+  const d = $('#dlg');
+  if (!d || typeof d.showModal !== 'function'){ if (confirm(titulo + '\n\n' + texto)) acao(); return; }
+  $('#dlg-t').textContent = titulo; $('#dlg-p').textContent = texto; $('#dlg-ok').textContent = rotulo;
+  $('#dlg-ok').onclick = () => { d.close(); acao(); };
+  $('#dlg-cancel').onclick = () => d.close();
+  d.showModal(); $('#dlg-cancel').focus();
+}
+
+/* ================= Leitura dos arquivos qcNN.js =================
+   Cada arquivo declara "const Qs=[...]". Como todos usam o mesmo nome,
+   cada um é carregado num iframe separado e os dados voltam por postMessage.
+   Assim os arquivos continuam exatamente como estão. */
+function candidatos(n){
+  const dois = 'qc' + String(n).padStart(2, '0') + '.js';
+  return n < 10 ? [dois, 'qc' + n + '.js'] : [dois];
+}
+function carregarArquivo(nome){
+  return new Promise((resolve) => {
+    const token = 't' + Date.now().toString(36) + Math.random().toString(36).slice(2);
+    const f = document.createElement('iframe');
+    f.style.display = 'none'; f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1;
+    let pronto = false;
+    const fim = (dados) => {
+      if (pronto) return; pronto = true;
+      clearTimeout(limite); window.removeEventListener('message', recebe); f.remove(); resolve(dados);
+    };
+    const recebe = (e) => { if (e.data && e.data.token === token) fim(e.data.qs); };
+    const limite = setTimeout(() => fim(null), 8000);
+    window.addEventListener('message', recebe);
+    f.srcdoc = '<!DOCTYPE html><meta charset="utf-8"><script src="' + nome + '"><\/script>' +
+      '<script>try{parent.postMessage({token:"' + token + '",qs:(typeof Qs!=="undefined"&&Array.isArray(Qs))?Qs:null},"*")}' +
+      'catch(e){parent.postMessage({token:"' + token + '",qs:null},"*")}<\/script>';
+    document.body.appendChild(f);
+  });
+}
+function valida(q){
+  return q && typeof q.t === 'string' && Array.isArray(q.opts) && q.opts.length >= 2 && q.opts.length <= 6 &&
+    Number.isInteger(q.ans) && q.ans >= 0 && q.ans < q.opts.length;
+}
+function carregarBancos(){
+  return Promise.all(CONFIG.capitulos.map(async (ch) => {
+    const nomes = candidatos(ch);
+    const dados = await Promise.all(nomes.map(carregarArquivo));
+    const i = dados.findIndex(Array.isArray);
+    if (i < 0) return { ch, arquivo: nomes[0], achou: false, questoes: [], invalidas: 0 };
+    const questoes = []; let invalidas = 0;
+    dados[i].forEach((q, idx) => {
+      if (valida(q)) questoes.push({ ch, idx, t: q.t, opts: q.opts, ans: q.ans, exp: typeof q.exp === 'string' ? q.exp : '' });
+      else invalidas++;
+    });
+    if (invalidas) console.warn('Simulado: ' + nomes[i] + ' tem ' + invalidas + ' questão(ões) fora do formato, ignorada(s).');
+    return { ch, arquivo: nomes[i], achou: true, questoes, invalidas };
+  }));
+}
+
+/* ================= Estado ================= */
+let bancos = [];
+let S = null;               // simulado atual
+let tela = 'carregando';
+let relogioId = null;
+let filtroRevisao = 'todas';
+let filtroCorrecao = 'erros';
+
+function questaoPorRef(ch, idx){
+  const b = bancos.find((b) => b.ch === ch);
+  return (b && b.questoes.find((q) => q.idx === idx)) || null;
+}
+function salvar(){
+  if (!S || S.fim) return;
+  gravar(CHAVE_ANDAMENTO, { v: 1, itens: S.qs.map((q) => [q.ch, q.idx]), resp: S.resp, marc: S.marc, atual: S.atual,
+    inicio: S.inicio, prazo: S.prazo, minutos: S.minutos, modo: S.modo, avisos: S.avisos });
+}
+function restaurar(salvo){
+  if (!salvo || salvo.v !== 1 || !Array.isArray(salvo.itens)) return null;
+  const qs = [], resp = [], marc = [];
+  salvo.itens.forEach((it, i) => {
+    const q = questaoPorRef(it[0], it[1]);
+    if (q){ qs.push(q); resp.push(Number.isInteger(salvo.resp[i]) ? salvo.resp[i] : -1); marc.push(!!salvo.marc[i]); }
+  });
+  if (!qs.length) return null;
+  return { qs, resp, marc, atual: Math.min(salvo.atual || 0, qs.length - 1), inicio: salvo.inicio, prazo: salvo.prazo,
+    minutos: salvo.minutos, modo: salvo.modo || 'livre', avisos: salvo.avisos || [], fim: null, motivo: null };
+}
+
+/* ================= Sorteio ================= */
+function sortear(pool, n, modo){
+  const pesos = CONFIG.pesos[modo];
+  if (!pesos) return embaralhar(pool).slice(0, n);
+  const porDominio = {};
+  pool.forEach((q) => { const d = CONFIG.dominioDoCapitulo[q.ch] || 0; (porDominio[d] = porDominio[d] || []).push(q); });
+  const doms = Object.keys(porDominio).map(Number).filter((d) => pesos[d]);
+  const soma = doms.reduce((s, d) => s + pesos[d], 0);
+  const cotas = doms.map((d) => { const exato = n * pesos[d] / soma; return { d, cota: Math.floor(exato), resto: exato - Math.floor(exato) }; });
+  let faltam = n - cotas.reduce((s, c) => s + c.cota, 0);
+  cotas.slice().sort((a, b) => b.resto - a.resto).forEach((c) => { if (faltam > 0){ c.cota++; faltam--; } });
+  const escolhidas = []; const usadas = new Set();
+  cotas.forEach((c) => embaralhar(porDominio[c.d]).slice(0, c.cota).forEach((q) => { escolhidas.push(q); usadas.add(q); }));
+  if (escolhidas.length < n) embaralhar(pool.filter((q) => !usadas.has(q))).slice(0, n - escolhidas.length).forEach((q) => escolhidas.push(q));
+  return embaralhar(escolhidas);
+}
+
+/* ================= Relógio ================= */
+function iniciarRelogio(){ if (!relogioId) relogioId = setInterval(tique, 500); }
+function pararRelogio(){ if (relogioId){ clearInterval(relogioId); relogioId = null; } }
+function atualizarRelogio(){
+  const el = $('#timer'); if (!el || !S) return;
+  const resta = S.prazo - Date.now();
+  el.textContent = relogio(resta);
+  el.classList.toggle('warn', resta <= 15 * 60000 && resta > 5 * 60000);
+  el.classList.toggle('danger', resta <= 5 * 60000);
+}
+function tique(){
+  if (!S || S.fim){ pararRelogio(); return; }
+  const resta = S.prazo - Date.now();
+  atualizarRelogio();
+  if (resta <= 0){ encerrar('tempo'); return; }
+  const novos = CONFIG.avisosMinutos.filter((m) => resta <= m * 60000 && S.minutos > m && S.avisos.indexOf(m) < 0);
+  if (novos.length){
+    novos.forEach((m) => S.avisos.push(m)); salvar();
+    const min = Math.ceil(resta / 60000);
+    aviso(min === 1 ? 'Falta 1 minuto.' : 'Faltam ' + min + ' minutos.');
+  }
+}
+
+/* ================= Tela inicial ================= */
+function opcaoModo(valor, texto, atual){
+  return '<label class="radio"><input type="radio" name="modo" value="' + valor + '"' + (atual === valor ? ' checked' : '') +
+    '><span>' + texto + '</span></label>';
+}
+function infoExame(){
+  const grupos = [1, 2, 3, 4].map((d) => {
+    const caps = CONFIG.capitulos.filter((c) => CONFIG.dominioDoCapitulo[c] === d);
+    return '<div class="dom"><div class="dom-head"><span>' + CONFIG.nomesDominios[d] + '</span><span class="peso">' + CONFIG.pesos.cs0003[d] + '%</span></div><ul>' +
+      caps.map((c) => '<li><span class="cnum">Capítulo ' + c + '</span><span>' + CONFIG.titulos[c] + '</span></li>').join('') + '</ul></div>';
+  }).join('');
+  return '<div class="card"><h2>Informações do exame</h2>' +
+    '<div class="prazo"><p class="prazo-t">Datas-limite para fazer o CS0-003</p><div class="datas">' +
+    '<div><b>22 de dezembro de 2026</b><span>Versão em inglês</span></div>' +
+    '<div><b>23 de março de 2027</b><span>Versões em português, espanhol e japonês</span></div></div>' +
+    '<p>Nessas datas o CS0-003 é aposentado e dá lugar ao CS0-004, do qual este simulado cobre apenas uma parte.</p></div>' +
+    '<dl class="specs">' +
+    '<div><dt>Exame</dt><dd>CompTIA Cybersecurity Analyst (CySA+), código CS0-003, lançado em 6 de junho de 2023</dd></div>' +
+    '<div><dt>Questões</dt><dd>Até 85, entre múltipla escolha e questões baseadas em desempenho (simulações práticas)</dd></div>' +
+    '<div><dt>Duração</dt><dd>165 minutos</dd></div>' +
+    '<div><dt>Aprovação</dt><dd>750 pontos, numa escala de 100 a 900</dd></div>' +
+    '<div><dt>Idiomas</dt><dd>Inglês, português, espanhol e japonês</dd></div>' +
+    '<div><dt>Experiência recomendada</dt><dd>Network+, Security+ ou conhecimento equivalente, com pelo menos 4 anos de prática como analista de resposta a incidentes, de SOC ou equivalente</dd></div>' +
+    '</dl><h3>Domínios e capítulos</h3><p class="small muted">Cada capítulo aparece no domínio que ele mais cobre, com o peso do domínio na prova.</p>' +
+    '<div class="doms">' + grupos + '</div>' +
+    '<p class="small muted fonte">Dados da <a href="https://www.comptia.org/en-us/certifications/cybersecurity-analyst/v3/" target="_blank" rel="noopener">página oficial do CySA+ V3 na CompTIA</a>. Confira as datas lá antes de agendar a prova.</p></div>';
+}
+function telaInicio(){
+  tela = 'inicio'; pararRelogio(); S = null;
+  const prefs = ler(CHAVE_PREFS) || {};
+  const fora = new Set(prefs.fora || []);
+  const modo = CONFIG.pesos[prefs.modo] ? prefs.modo : 'livre';
+  const achados = bancos.filter((b) => b.achou);
+  const salvo = restaurar(ler(CHAVE_ANDAMENTO));
+  let h = '<h1>Simulado CySA+</h1><p class="sub">Simulado gratuito para o exame CompTIA CySA+ (CS0-003). Como na prova, não há correção durante o teste: você responde, marca o que quiser revisar e vê o resultado ao encerrar ou quando o tempo acabar.</p>';
+
+  if (salvo){
+    const resta = salvo.prazo - Date.now();
+    const feitas = salvo.resp.filter((r) => r >= 0).length;
+    h += '<div class="card resume"><h2>Simulado em andamento</h2><p class="small muted">' +
+      (resta > 0 ? 'Faltam ' + relogio(resta) + '. Você respondeu ' + feitas + ' de ' + salvo.qs.length + ' questões.'
+                 : 'O tempo deste simulado acabou enquanto a página estava fechada.') +
+      '</p><div class="row" style="margin-top:.9rem"><button class="btn primary" id="retomar">' + (resta > 0 ? 'Retomar simulado' : 'Ver resultado') +
+      '</button><button class="btn" id="descartar">Descartar</button></div></div>';
+  }
+
+  h += '<div class="card"><h2>Capítulos</h2>';
+  if (!achados.length){
+    h += '<p class="small">Não foi possível carregar as questões. Recarregue a página para tentar de novo.</p>';
+  } else {
+    h += '<div class="banks">';
+    bancos.forEach((b) => {
+      const nome = '<span class="cap">Capítulo ' + b.ch + '<span class="ctitle">' + (CONFIG.titulos[b.ch] || '') + '</span></span>';
+      if (b.achou){
+        h += '<label class="bank"><input type="checkbox" data-ch="' + b.ch + '"' + (fora.has(b.ch) ? '' : ' checked') + '>' + nome +
+          '<span class="count">' + plural(b.questoes.length, 'questão', 'questões') + '</span></label>';
+      } else {
+        h += '<div class="bank missing"><span></span>' + nome + '<span class="count">indisponível</span></div>';
+      }
+    });
+    h += '</div><p class="total" id="total"></p>';
+  }
+  h += '</div>';
+
+  h += '<div class="card"><h2>Formato da prova</h2><div class="fields">' +
+    '<div class="field"><label for="nq">Número de questões</label><input id="nq" type="number" min="1" max="500" value="' + (prefs.nq || CONFIG.questoes) + '"><div class="hint">O exame tem no máximo 85.</div></div>' +
+    '<div class="field"><label for="min">Tempo, em minutos</label><input id="min" type="number" min="1" max="600" step="any" value="' + (prefs.min || CONFIG.minutos) + '"><div class="hint">O exame oficial dura 165 minutos.</div></div>' +
+    '</div><fieldset><legend>Como sortear as questões</legend>' +
+    opcaoModo('livre', 'Sorteio livre entre todas as questões dos capítulos marcados', modo) +
+    opcaoModo('cs0003', 'Proporcional aos domínios do CS0-003: 33%, 30%, 20% e 17%', modo) +
+    '<p class="hint">No sorteio proporcional, cada capítulo conta para o domínio indicado em Informações do exame.</p>' +
+    '</fieldset><div class="row start"><button class="btn primary" id="comecar">Começar simulado</button><span class="small muted" id="aviso-inicio" role="alert"></span></div></div>';
+
+  h += infoExame();
+  app().innerHTML = '<div class="page">' + h + '</div>';
+
+  document.querySelectorAll('.bank input').forEach((c) => c.addEventListener('change', atualizarTotal));
+  $('#nq').addEventListener('input', atualizarTotal);
+  $('#comecar').addEventListener('click', () => {
+    if (salvo) abrirDialogo('Começar outro simulado?', 'O simulado em andamento será descartado.', 'Começar outro', comecar);
+    else comecar();
+  });
+  if (salvo){
+    $('#retomar').addEventListener('click', () => {
+      S = salvo;
+      if (S.prazo - Date.now() <= 0){ S.fim = S.prazo; S.motivo = 'tempo'; apagar(CHAVE_ANDAMENTO); telaResultado(); }
+      else telaProva(true);
+    });
+    $('#descartar').addEventListener('click', () => { apagar(CHAVE_ANDAMENTO); telaInicio(); });
+  }
+  atualizarTotal();
+}
+function capitulosMarcados(){
+  return Array.from(document.querySelectorAll('.bank input')).filter((c) => c.checked).map((c) => Number(c.dataset.ch));
+}
+function atualizarTotal(){
+  const el = $('#total'); const botao = $('#comecar');
+  const marcados = capitulosMarcados();
+  const total = bancos.filter((b) => b.achou && marcados.indexOf(b.ch) >= 0).reduce((s, b) => s + b.questoes.length, 0);
+  const nq = Math.floor(Number($('#nq').value) || 0);
+  if (el) el.textContent = 'Total disponível: ' + plural(total, 'questão', 'questões') + '.' + (total > 0 && nq > total ? ' O simulado vai usar todas elas.' : '');
+  if (botao) botao.disabled = total === 0;
+}
+function comecar(){
+  const marcados = capitulosMarcados();
+  const nq = Math.floor(Number($('#nq').value));
+  const min = Number($('#min').value);
+  const modo = (document.querySelector('input[name=modo]:checked') || {}).value || 'livre';
+  const pool = [];
+  bancos.forEach((b) => { if (b.achou && marcados.indexOf(b.ch) >= 0) pool.push.apply(pool, b.questoes); });
+  if (!pool.length){ $('#aviso-inicio').textContent = 'Marque pelo menos um capítulo com questões.'; return; }
+  if (!(nq >= 1)){ $('#aviso-inicio').textContent = 'Informe um número de questões a partir de 1.'; return; }
+  if (!(min > 0)){ $('#aviso-inicio').textContent = 'Informe um tempo maior que zero.'; return; }
+  gravar(CHAVE_PREFS, { nq, min, modo, fora: bancos.filter((b) => b.achou && marcados.indexOf(b.ch) < 0).map((b) => b.ch) });
+  const qs = sortear(pool, Math.min(nq, pool.length), modo);
+  const agora = Date.now();
+  S = { qs, resp: qs.map(() => -1), marc: qs.map(() => false), atual: 0, inicio: agora, prazo: agora + min * 60000,
+        minutos: min, modo, avisos: [], fim: null, motivo: null };
+  salvar();
+  telaProva(true);
+}
+
+/* ================= Prova ================= */
+const ICONE_MARCA = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1v10M2 1.5h7.5L8 4l1.5 2.5H2" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+function cabecalhoProva(titulo){
+  const n = S.qs.length, feitas = S.resp.filter((r) => r >= 0).length;
+  return '<div class="examhead"><div class="row"><span class="qpos">' + titulo + '</span>' +
+    '<span class="answered" id="feitas">' + feitas + ' de ' + n + ' respondidas</span>' +
+    '<span class="timer" id="timer" role="timer" aria-label="Tempo restante">' + relogio(S.prazo - Date.now()) + '</span></div>' +
+    '<div class="progress"><div id="barra" style="width:' + (feitas / n * 100) + '%"></div></div></div>';
+}
+function telaProva(focar){
+  tela = 'prova'; iniciarRelogio();
+  const n = S.qs.length, i = S.atual, q = S.qs[i];
+  const ultima = LETRAS[q.opts.length - 1];
+  let h = cabecalhoProva('<strong>Questão ' + (i + 1) + '</strong> de ' + n);
+  h += '<div class="card"><div class="qhead"><button class="flagbtn" id="marcar" aria-pressed="' + S.marc[i] + '">' + ICONE_MARCA +
+    '<span>' + (S.marc[i] ? 'Marcada para revisão' : 'Marcar para revisão') + '</span></button></div>' +
+    '<div class="q-text" id="qtexto" tabindex="-1">' + q.t + '</div><div class="options">';
+  q.opts.forEach((o, j) => {
+    h += '<button class="opt" data-op="' + j + '" aria-pressed="' + (S.resp[i] === j) + '"><span class="letter">' + LETRAS[j] + ')</span><span>' + semPrefixo(o) + '</span></button>';
+  });
+  h += '</div></div><p class="keys">Atalhos: as letras A a ' + ultima + ' escolhem a alternativa, as setas passam de questão e M marca para revisão.</p>';
+  h += '<div class="bar"><div class="bar-in"><button class="btn" id="ant"' + (i === 0 ? ' disabled' : '') + '>Anterior</button>' +
+    '<div class="mid"><button class="btn" id="revisar">Revisar respostas</button></div>' +
+    '<button class="btn primary" id="prox">' + (i === n - 1 ? 'Ir para a revisão' : 'Próxima') + '</button></div></div>';
+  app().innerHTML = '<div class="page has-bar">' + h + '</div>';
+
+  document.querySelectorAll('.opt').forEach((b) => b.addEventListener('click', () => escolher(Number(b.dataset.op))));
+  $('#marcar').addEventListener('click', alternarMarca);
+  $('#ant').addEventListener('click', () => irPara(S.atual - 1));
+  $('#prox').addEventListener('click', () => (S.atual < S.qs.length - 1 ? irPara(S.atual + 1) : telaRevisao()));
+  $('#revisar').addEventListener('click', telaRevisao);
+  atualizarRelogio();
+  if (focar){ window.scrollTo(0, 0); const t = $('#qtexto'); if (t) t.focus({ preventScroll: true }); }
+}
+function escolher(j){
+  if (!S || S.fim) return;
+  S.resp[S.atual] = j; salvar();
+  document.querySelectorAll('.opt').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.op) === j)));
+  const n = S.qs.length, feitas = S.resp.filter((r) => r >= 0).length;
+  $('#feitas').textContent = feitas + ' de ' + n + ' respondidas';
+  $('#barra').style.width = (feitas / n * 100) + '%';
+}
+function alternarMarca(){
+  if (!S || S.fim) return;
+  const i = S.atual; S.marc[i] = !S.marc[i]; salvar();
+  const b = $('#marcar'); b.setAttribute('aria-pressed', String(S.marc[i]));
+  b.querySelector('span').textContent = S.marc[i] ? 'Marcada para revisão' : 'Marcar para revisão';
+}
+function irPara(i){
+  if (i < 0 || i >= S.qs.length) return;
+  S.atual = i; salvar(); telaProva(true);
+}
+
+/* ================= Revisão ================= */
+function botaoFiltro(valor, texto, atual, attr){
+  return '<button ' + attr + '="' + valor + '" aria-pressed="' + (atual === valor) + '">' + texto + '</button>';
+}
+function telaRevisao(){
+  tela = 'revisao'; iniciarRelogio();
+  const n = S.qs.length, feitas = S.resp.filter((r) => r >= 0).length, marcadas = S.marc.filter(Boolean).length;
+  let h = cabecalhoProva('<strong>Revisão</strong>');
+  h += '<div class="card"><div class="stats three"><div class="stat"><b>' + feitas + '</b><span>Respondidas</span></div>' +
+    '<div class="stat"><b>' + (n - feitas) + '</b><span>Em branco</span></div><div class="stat"><b>' + marcadas + '</b><span>Marcadas</span></div></div>' +
+    '<div class="seg" role="group" aria-label="Filtrar questões">' +
+    botaoFiltro('todas', 'Todas', filtroRevisao, 'data-f') + botaoFiltro('branco', 'Em branco', filtroRevisao, 'data-f') + botaoFiltro('marcadas', 'Marcadas', filtroRevisao, 'data-f') +
+    '</div><div class="grid">';
+  let visiveis = 0;
+  S.qs.forEach((q, i) => {
+    const feita = S.resp[i] >= 0, marcada = S.marc[i];
+    if (filtroRevisao === 'branco' && feita) return;
+    if (filtroRevisao === 'marcadas' && !marcada) return;
+    visiveis++;
+    h += '<button class="cell' + (feita ? ' done' : '') + (marcada ? ' flagged' : '') + (i === S.atual ? ' current' : '') + '" data-ir="' + i +
+      '" aria-label="Questão ' + (i + 1) + (feita ? ', respondida' : ', em branco') + (marcada ? ', marcada para revisão' : '') + '">' + (i + 1) + '</button>';
+  });
+  h += '</div>';
+  if (!visiveis) h += '<p class="small muted">' + (filtroRevisao === 'branco' ? 'Todas as questões estão respondidas.' : 'Nenhuma questão marcada para revisão.') + '</p>';
+  h += '<div class="legend"><span><i class="sw" style="background:var(--sel-bg);border:0.5px solid var(--sel)"></i>Respondida</span>' +
+    '<span><i class="sw" style="border:1px dashed var(--line2)"></i>Em branco</span>' +
+    '<span><i class="sw" style="width:8px;height:8px;border-radius:50%;background:var(--flag)"></i>Marcada para revisão</span></div></div>';
+  h += '<div class="bar"><div class="bar-in"><button class="btn" id="voltar">Voltar à questão ' + (S.atual + 1) + '</button>' +
+    '<button class="btn primary" id="encerrar">Encerrar simulado</button></div></div>';
+  app().innerHTML = '<div class="page has-bar">' + h + '</div>';
+  window.scrollTo(0, 0);
+
+  document.querySelectorAll('[data-f]').forEach((b) => b.addEventListener('click', () => { filtroRevisao = b.dataset.f; telaRevisao(); }));
+  document.querySelectorAll('[data-ir]').forEach((b) => b.addEventListener('click', () => irPara(Number(b.dataset.ir))));
+  $('#voltar').addEventListener('click', () => telaProva(true));
+  $('#encerrar').addEventListener('click', confirmarEncerrar);
+  atualizarRelogio();
+}
+function confirmarEncerrar(){
+  const branco = S.resp.filter((r) => r < 0).length, marcadas = S.marc.filter(Boolean).length;
+  const partes = [];
+  if (branco) partes.push(branco === 1 ? '1 questão está em branco' : branco + ' questões estão em branco');
+  if (marcadas) partes.push(marcadas === 1 ? '1 está marcada para revisão' : marcadas + ' estão marcadas para revisão');
+  const texto = (partes.length ? partes.join(' e ') + '. ' : '') + 'Depois de encerrar, não dá para voltar às questões.';
+  abrirDialogo('Encerrar o simulado?', texto, 'Encerrar simulado', () => encerrar('manual'));
+}
+function encerrar(motivo){
+  if (!S || S.fim) return;
+  S.fim = Math.min(Date.now(), S.prazo); S.motivo = motivo;
+  pararRelogio(); apagar(CHAVE_ANDAMENTO);
+  const d = $('#dlg'); if (d && d.open) d.close();
+  filtroCorrecao = 'erros'; filtroRevisao = 'todas';
+  telaResultado();
+}
+
+/* ================= Resultado ================= */
+function linhaBarra(rotulo, c, dica){
+  const p = Math.round(c.ok / c.total * 100);
+  const cor = p >= 80 ? 'var(--ok-bar)' : p >= 60 ? 'var(--flag)' : 'var(--bad-bar)';
+  return '<div class="brow"><span' + (dica ? ' title="' + dica + '"' : '') + '>' + rotulo + '</span><div class="track"><div class="fill" style="width:' + p + '%;background:' + cor + '"></div></div>' +
+    '<span class="num">' + c.ok + ' de ' + c.total + ' (' + p + '%)</span></div>';
+}
+function listaCorrecao(){
+  let h = '', mostradas = 0;
+  S.qs.forEach((q, i) => {
+    const r = S.resp[i], certa = r === q.ans, marcada = S.marc[i];
+    if (filtroCorrecao === 'erros' && certa) return;
+    if (filtroCorrecao === 'marcadas' && !marcada) return;
+    mostradas++;
+    const selo = r < 0 ? '<span class="pill blank">Em branco</span>' : certa ? '<span class="pill ok">Correta</span>' : '<span class="pill bad">Incorreta</span>';
+    h += '<div class="rev"><div class="rev-head"><span>Questão ' + (i + 1) + ', capítulo ' + q.ch + (marcada ? ', marcada para revisão' : '') + '</span>' + selo + '</div>' +
+      '<div class="q-text">' + q.t + '</div>';
+    q.opts.forEach((o, j) => {
+      const cls = j === q.ans ? ' right' : (j === r ? ' wrong' : '');
+      const tag = j === r ? 'Sua resposta' : (j === q.ans ? 'Resposta correta' : '');
+      h += '<div class="ropt' + cls + '"><span class="letter">' + LETRAS[j] + ')</span><span>' + semPrefixo(o) + '</span>' + (tag ? '<span class="tag">' + tag + '</span>' : '') + '</div>';
+    });
+    if (q.exp) h += '<div class="exp"><strong>Explicação:</strong> ' + q.exp + '</div>';
+    h += '</div>';
+  });
+  if (!mostradas) h = '<p class="small muted">' + (filtroCorrecao === 'erros' ? 'Você acertou todas as questões.' : 'Nenhuma questão foi marcada para revisão.') + '</p>';
+  return h;
+}
+function telaResultado(){
+  tela = 'resultado'; pararRelogio();
+  const n = S.qs.length; let certas = 0, branco = 0;
+  S.qs.forEach((q, i) => { const r = S.resp[i]; if (r < 0) branco++; else if (r === q.ans) certas++; });
+  const erradas = n - certas - branco, pct = Math.round(certas / n * 100);
+  const cor = pct >= 85 ? 'var(--ok)' : pct >= 70 ? 'var(--sel)' : pct >= 50 ? 'var(--flag)' : 'var(--bad)';
+  const frase = pct >= 85 ? 'Desempenho alto.' : pct >= 70 ? 'Bom desempenho, com pontos a revisar.' :
+    pct >= 50 ? 'Desempenho intermediário. Revise os capítulos com menos acertos.' : 'Desempenho baixo. Revise os capítulos com menos acertos antes do próximo simulado.';
+
+  let h = '<h1>Resultado do simulado</h1><p class="sub">' + plural(n, 'questão sorteada', 'questões sorteadas') +
+    (S.modo === 'cs0003' ? ', proporcional aos domínios do CS0-003.' : ' por sorteio livre.') + '</p>';
+  if (S.motivo === 'tempo') h += '<div class="banner" role="status">O tempo acabou e o simulado foi encerrado automaticamente.</div>';
+  h += '<div class="card"><div class="score" style="color:' + cor + '">' + pct + '%</div>' +
+    '<p class="muted" style="margin-top:.35rem">' + certas + ' de ' + n + ' corretas. ' + frase + '</p>' +
+    '<div class="stats"><div class="stat"><b style="color:var(--ok)">' + certas + '</b><span>Corretas</span></div>' +
+    '<div class="stat"><b style="color:var(--bad)">' + erradas + '</b><span>Incorretas</span></div>' +
+    '<div class="stat"><b>' + branco + '</b><span>Em branco</span></div>' +
+    '<div class="stat"><b>' + duracao(S.fim - S.inicio) + '</b><span>de ' + duracao(S.minutos * 60000) + '</span></div></div>' +
+    '<p class="small muted">No exame real, a aprovação é 750 numa escala de 100 a 900, e a CompTIA não divulga como converte acertos em pontos. Use a porcentagem como referência, não como nota.</p></div>';
+
+  const porDom = {}, porCap = {};
+  S.qs.forEach((q, i) => {
+    const d = CONFIG.dominioDoCapitulo[q.ch] || 0;
+    const a = porDom[d] = porDom[d] || { ok: 0, total: 0 }; a.total++;
+    const c = porCap[q.ch] = porCap[q.ch] || { ok: 0, total: 0 }; c.total++;
+    if (S.resp[i] === q.ans){ a.ok++; c.ok++; }
+  });
+  h += '<div class="card"><h2>Por domínio</h2>' + Object.keys(porDom).map(Number).sort((a, b) => a - b)
+    .map((d) => linhaBarra(CONFIG.nomesDominios[d] || 'Sem domínio', porDom[d])).join('') + '</div>';
+  h += '<div class="card"><h2>Por capítulo</h2>' + Object.keys(porCap).map(Number).sort((a, b) => a - b)
+    .map((ch) => linhaBarra('Capítulo ' + ch, porCap[ch], CONFIG.titulos[ch])).join('') + '</div>';
+  h += '<div class="card"><h2>Correção</h2><div class="seg" role="group" aria-label="Filtrar correção">' +
+    botaoFiltro('erros', 'Erradas e em branco', filtroCorrecao, 'data-c') + botaoFiltro('todas', 'Todas', filtroCorrecao, 'data-c') +
+    botaoFiltro('marcadas', 'Marcadas', filtroCorrecao, 'data-c') + '</div><div id="lista">' + listaCorrecao() + '</div></div>';
+  h += '<div class="row"><button class="btn primary" id="novo">Novo simulado</button></div>';
+  app().innerHTML = '<div class="page">' + h + '</div>';
+  window.scrollTo(0, 0);
+
+  document.querySelectorAll('[data-c]').forEach((b) => b.addEventListener('click', () => {
+    filtroCorrecao = b.dataset.c;
+    document.querySelectorAll('[data-c]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.c === filtroCorrecao)));
+    $('#lista').innerHTML = listaCorrecao();
+  }));
+  $('#novo').addEventListener('click', telaInicio);
+}
+
+/* ================= Teclado e saída ================= */
+document.addEventListener('keydown', (e) => {
+  if (tela !== 'prova' || !S || S.fim) return;
+  const d = $('#dlg'); if (d && d.open) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  const q = S.qs[S.atual], k = e.key;
+  let j = -1;
+  if (/^[a-fA-F]$/.test(k)) j = k.toUpperCase().charCodeAt(0) - 65;
+  else if (/^[1-6]$/.test(k)) j = Number(k) - 1;
+  if (j >= 0 && j < q.opts.length){ e.preventDefault(); escolher(j); return; }
+  if (k === 'ArrowRight'){ e.preventDefault(); if (S.atual < S.qs.length - 1) irPara(S.atual + 1); else telaRevisao(); }
+  else if (k === 'ArrowLeft'){ e.preventDefault(); irPara(S.atual - 1); }
+  else if (k === 'm' || k === 'M'){ e.preventDefault(); alternarMarca(); }
+});
+window.addEventListener('beforeunload', (e) => {
+  if (S && !S.fim && (tela === 'prova' || tela === 'revisao')){ salvar(); e.preventDefault(); e.returnValue = ''; }
+});
+
+/* ================= Início ================= */
+(async function iniciar(){
+  app().innerHTML = '<div class="page"><h1>Simulado CySA+</h1><p class="sub">Procurando os arquivos de questões na pasta…</p></div>';
+  ['simuladoCySA.andamento', 'simuladoCySA.preferencias'].forEach(apagar);
+  try { bancos = await carregarBancos(); } catch (e) { bancos = []; }
+  if (!bancos.some((b) => b.achou)) console.warn('Simulado: nenhum arquivo qc01.js a qc13.js foi encontrado na mesma pasta desta página.');
+  telaInicio();
+})();
+})();
+</script>
+</body>
+</html>
