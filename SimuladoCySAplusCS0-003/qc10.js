@@ -255,7 +255,7 @@ const Qs = [
     "exp": "Patching inesperado pode ser um IoC surpreendente, pois em alguns casos atacantes corrigem sistemas para garantir que outros não os sigam pela falha que eles próprios exploraram. A alternativa A descarta indevidamente a suspeita, ignorando o caráter não autorizado da correção. A alternativa C descreve outro IoC distinto — coleta de dados —, não relacionado à aplicação de correções. A alternativa D presume erro de ferramenta sem fundamento diante de uma correção não planejada."
   },
   {
-    "t": "Uma organização deseja detectar modificações não autorizadas em arquivos de configuração e de log que possam indicar atividade maliciosa em seus hosts. Qual tipo de ferramenta é mais apropriado para essa finalidade?",
+    "t": "Uma organização deseja detectar modificações não autorizadas em arquivos de configuração que possam indicar atividade maliciosa em seus hosts. Qual tipo de ferramenta é mais apropriado para essa finalidade?",
     "opts": [
       "A) Um analisador de carga de trabalho de banco de dados que monitora leituras em disco",
       "B) Uma ferramenta de reputação de domínios integrada ao resolvedor de DNS",
