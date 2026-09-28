@@ -10,12 +10,12 @@
 	Comentários sobre: Sample Page	</title>
 	<atom:link href="/index.php/sample-page/feed/" rel="self" type="application/rss+xml" />
 	<link>/</link>
-	<description>Profissional em redes de computadores e segurança cibernética</description>
+	<description>Profissional em Cibersegurança Defensiva</description>
 	<lastBuildDate>Thu, 10 Mar 2022 20:39:19 +0000</lastBuildDate>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
 	<sy:updateFrequency>
 	1	</sy:updateFrequency>
-	<generator>https://wordpress.org/?v=6.4.3</generator>
+	<generator>https://wordpress.org/?v=7.1.2</generator>
 </channel>
 </rss>

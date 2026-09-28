@@ -11,14 +11,14 @@
 	<title>Arquivos Linux - Marcius Costa</title>
 	<atom:link href="/index.php/category/linux/feed/" rel="self" type="application/rss+xml" />
 	<link>/</link>
-	<description>Profissional em redes de computadores e segurança cibernética</description>
+	<description>Profissional em Cibersegurança Defensiva</description>
 	<lastBuildDate>Tue, 15 Mar 2022 00:07:26 +0000</lastBuildDate>
 	<language>pt-BR</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
 	<sy:updateFrequency>
 	1	</sy:updateFrequency>
-	<generator>https://wordpress.org/?v=6.4.3</generator>
+	<generator>https://wordpress.org/?v=7.1.2</generator>
 	<item>
 		<title>Redimensionando disco virtual no Debian com partição LVM sem perda de dados</title>
 		<link>/index.php/2022/03/11/redimensionando-disco-virtual-no-debian-com-particao-lvm-sem-perda-de-dados/</link>
@@ -32,19 +32,19 @@
 <p>O post <a rel="nofollow" href="/index.php/2022/03/11/redimensionando-disco-virtual-no-debian-com-particao-lvm-sem-perda-de-dados/">Redimensionando disco virtual no Debian com partição LVM sem perda de dados</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
 ]]></description>
 										<content:encoded><![CDATA[
-<p></p>
+<p class="wp-block-paragraph"></p>
 
 
 
-<p>O cenário é o seguinte:</p>
+<p class="wp-block-paragraph">O cenário é o seguinte:</p>
 
 
 
-<ul><li>Servidor Debian Buster com Kernel 4.19.194-2 virtualizado em VirtualBox</li><li>Disco virtual de 50GB precisa ser aumentado para 100GB</li><li>Partição única em LVM no segundo disco (/dev/sdb)</li></ul>
+<ul class="wp-block-list"><li>Servidor Debian Buster com Kernel 4.19.194-2 virtualizado em VirtualBox</li><li>Disco virtual de 50GB precisa ser aumentado para 100GB</li><li>Partição única em LVM no segundo disco (/dev/sdb)</li></ul>
 
 
 
-<p></p>
+<p class="wp-block-paragraph"></p>
 
 
 
@@ -52,7 +52,7 @@
 
 
 
-<p>Após aumentar o disco virtual no VirtualBox com o servidor Debian desligado, inicie-o e verifique se o novo tamanho foi reconhecido:</p>
+<p class="wp-block-paragraph">Após aumentar o disco virtual no VirtualBox com o servidor Debian desligado, inicie-o e verifique se o novo tamanho foi reconhecido:</p>
 
 
 
@@ -60,7 +60,7 @@
 
 
 
-<p>Caso o disco esteja montado, lembre-se de desmonta-lo:</p>
+<p class="wp-block-paragraph">Caso o disco esteja montado, lembre-se de desmonta-lo:</p>
 
 
 
@@ -68,7 +68,7 @@
 
 
 
-<p>Verifique as informações do volume lógico para pegar o nome dele. Execute “<em>sudo lvscan</em>“:</p>
+<p class="wp-block-paragraph">Verifique as informações do volume lógico para pegar o nome dele. Execute “<em>sudo lvscan</em>“:</p>
 
 
 
@@ -76,7 +76,7 @@
 
 
 
-<p>Desative o volume lógico:</p>
+<p class="wp-block-paragraph">Desative o volume lógico:</p>
 
 
 
@@ -84,7 +84,7 @@
 
 
 
-<p>Caso já não o tenha, instale o “<em>parted</em>” para redimensionar a partição LVM:</p>
+<p class="wp-block-paragraph">Caso já não o tenha, instale o “<em>parted</em>” para redimensionar a partição LVM:</p>
 
 
 
@@ -92,7 +92,7 @@
 
 
 
-<p>Inicialize o&nbsp;<em>parted</em>&nbsp;no disco a ser redimensionado:</p>
+<p class="wp-block-paragraph">Inicialize o&nbsp;<em>parted</em>&nbsp;no disco a ser redimensionado:</p>
 
 
 
@@ -100,7 +100,7 @@
 
 
 
-<p>No ambiente do&nbsp;<em>parted</em>, verifique a capacidade total do disco com o comando “<em>print</em>” afim de saber para qual tamanho pode-se aumentar a partição /dev/sdb1 com o comando “<em>resizepart</em>“:</p>
+<p class="wp-block-paragraph">No ambiente do&nbsp;<em>parted</em>, verifique a capacidade total do disco com o comando “<em>print</em>” afim de saber para qual tamanho pode-se aumentar a partição /dev/sdb1 com o comando “<em>resizepart</em>“:</p>
 
 
 
@@ -108,11 +108,11 @@
 
 
 
-<p>Insira as informações mostradas pelo comando “<em>print</em>” nas duas perguntas que o comando “<em>resizepart</em>” faz, conforme os destaques em vermelho na imagem acima.</p>
+<p class="wp-block-paragraph">Insira as informações mostradas pelo comando “<em>print</em>” nas duas perguntas que o comando “<em>resizepart</em>” faz, conforme os destaques em vermelho na imagem acima.</p>
 
 
 
-<p>Agora aumente o physical volume dessa partição com o comando “<em>sudo pvresize /dev/sdb1</em>“.</p>
+<p class="wp-block-paragraph">Agora aumente o physical volume dessa partição com o comando “<em>sudo pvresize /dev/sdb1</em>“.</p>
 
 
 
@@ -120,7 +120,7 @@
 
 
 
-<p>Redimensione o volume lógico para o máximo disponível:</p>
+<p class="wp-block-paragraph">Redimensione o volume lógico para o máximo disponível:</p>
 
 
 
@@ -132,7 +132,7 @@
 
 
 
-<p>Ative novamente o volume lógico com o comando:</p>
+<p class="wp-block-paragraph">Ative novamente o volume lógico com o comando:</p>
 
 
 
@@ -140,7 +140,7 @@
 
 
 
-<p>Faça uma checagem da partição antes de redimensioná-la (é necessário):</p>
+<p class="wp-block-paragraph">Faça uma checagem da partição antes de redimensioná-la (é necessário):</p>
 
 
 
@@ -148,7 +148,7 @@
 
 
 
-<p>Execute o&nbsp;<em>resize2fs</em>&nbsp;nessa partição para que o novo tamanho seja reconhecido:</p>
+<p class="wp-block-paragraph">Execute o&nbsp;<em>resize2fs</em>&nbsp;nessa partição para que o novo tamanho seja reconhecido:</p>
 
 
 
@@ -156,11 +156,11 @@
 
 
 
-<p>Pronto!</p>
+<p class="wp-block-paragraph">Pronto!</p>
 
 
 
-<p>Agora basta montar a partição com o comando&nbsp;<em>mount</em>.</p>
+<p class="wp-block-paragraph">Agora basta montar a partição com o comando&nbsp;<em>mount</em>.</p>
 
 
 
@@ -172,15 +172,15 @@
 
 
 
-<p>Caso o redimensionamento seja em um disco onde esteja rodando a raiz do sistema, basta usar um live-cd e seguir esses mesmos passos.</p>
+<p class="wp-block-paragraph">Caso o redimensionamento seja em um disco onde esteja rodando a raiz do sistema, basta usar um live-cd e seguir esses mesmos passos.</p>
 
 
 
-<blockquote class="wp-block-quote"><p><strong>Fontes:</strong><br><a href="https://www.tecmint.com/parted-command-to-create-resize-rescue-linux-disk-partitions/">https://www.tecmint.com/parted-command-to-create-resize-rescue-linux-disk-partitions/</a><br><a href="https://wiki.debian.org/LVM" target="_blank" rel="noreferrer noopener">https://wiki.debian.org/LVM</a></p></blockquote>
+<blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow"><p><strong>Fontes:</strong><br><a href="https://www.tecmint.com/parted-command-to-create-resize-rescue-linux-disk-partitions/">https://www.tecmint.com/parted-command-to-create-resize-rescue-linux-disk-partitions/</a><br><a href="https://wiki.debian.org/LVM" target="_blank" rel="noreferrer noopener">https://wiki.debian.org/LVM</a></p></blockquote>
 
 
 
-<p></p>
+<p class="wp-block-paragraph"></p>
 <p>O post <a rel="nofollow" href="/index.php/2022/03/11/redimensionando-disco-virtual-no-debian-com-particao-lvm-sem-perda-de-dados/">Redimensionando disco virtual no Debian com partição LVM sem perda de dados</a> apareceu primeiro em <a rel="nofollow" href="/">Marcius Costa</a>.</p>
 ]]></content:encoded>
 					

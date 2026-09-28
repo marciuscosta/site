@@ -10,12 +10,12 @@
 	Comentários sobre Marcius Costa	</title>
 	<atom:link href="/index.php/comments/feed/" rel="self" type="application/rss+xml" />
 	<link>/</link>
-	<description>Profissional em redes de computadores e segurança cibernética</description>
-	<lastBuildDate>Wed, 28 Feb 2024 11:25:14 +0000</lastBuildDate>
+	<description>Profissional em Cibersegurança Defensiva</description>
+	<lastBuildDate>Mon, 28 Sep 2026 09:28:38 +0000</lastBuildDate>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
 	<sy:updateFrequency>
 	1	</sy:updateFrequency>
-	<generator>https://wordpress.org/?v=6.4.3</generator>
+	<generator>https://wordpress.org/?v=7.1.2</generator>
 </channel>
 </rss>
